@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h1>Exams</h1>
+
+    <div>
+        <table id="dtExam">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Exam Name And Year</th>
+                    
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddExam(0)" class="btn btn-primary">Add New Exam</button>
+
+    </div>
+</div>
+@section Scripts{
+
+
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script>
+        var tableId = "";
+        var GradeArray = new Array();
+        $(document).ready(function () {
+            tableId = "#dtExam";
+            bindGradeTable(tableId);
+        });
+
+        function _AddQuestion(id) {
+
+            $("#modalContent").load(`/Exams/_AddQuestion?id=${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        
+
+
+        function DeleteExam(id) {
+
+            Easylearner.Confirm("Delete Exam", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                $.ajax({
+                    url: "/Exams/RemoveExam",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        closeModal();
+                       
+                        bindGradeTable(tableId);
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            );
+
+        }
+
+        function AddExam(id) {
+
+            $("#modalContent").load(`/Exams/_AddExam/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function EditQuestion(id) {
+            window.location.href = `/Exams/EditQuestion/${id}`;
+        }  
+
+        function bindGradeTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Exams/GetExamList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Exams",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Exams"
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "examNameAndYear",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            //var content = `<a href="javascript:;" onclick=_AddQuestion(${row.id}) class="dropdown-item action"><i class="fa fa-pencil" aria-hidden="true"></i> Add Questions</a>
+                            //                   <a href="javascript:;" onclick=EditQuestion(${row.id}) class="dropdown-item action"><i class="fa fa-info" aria-hidden="true"></i> EditDeleteQuestion</a>
+                            //                    <a href="javascript:;" onclick=DeleteExam(${row.id}) class="dropdown-item action"><i class="fa fa-info" aria-hidden="true"></i> EditDeleteExam</a>`;
+                            var content = `<a href="javascript:;" onclick=_AddQuestion(${row.id}) class="dropdown-item action"><i class="fa fa-pencil" aria-hidden="true"></i> Add Questions</a>
+                                <a href="javascript:;" onclick=EditQuestion(${row.id}) class="dropdown-item action"><i class="fa fa-info" aria-hidden="true"></i> EditDeleteQuestion</a>
+                                               
+                                                <a href="javascript:;" onclick=AddExam(${row.id}) class="dropdown-item action"><i class="fa fa-info" aria-hidden="true"></i> EditDeleteExam</a>`;
+                            return dataTableAction(content, data);
+                        }
+                    }
+                ]
+            });
+
+        }
+
+                            //function DeleteLesson(lessonId) {
+
+
+
+
+                            //    Easylearner.Confirm("Delete Lesson", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                            //        $.ajax({
+                            //            url: "/Grades/RemovLesson",
+                            //            data: { id: lessonId },
+                            //            type: "POST",
+                            //            success: function (response) {
+                            //                Easylearner.HandleResponse(response);
+                            //                bindGradeTable(tableId);
+                            //            },
+                            //            error: function (data) {
+                            //                console.log(data);
+                            //            }
+                            //        });
+                            //    }
+                            //    );
+
+                            //}
+                            //function DeleteGrades(id) {
+                            //    if (GradeArray.length === 0) {
+                            //        alert("please select atleast one grade !");
+                            //    }
+
+
+
+                            //    Easylearner.Confirm("Delete Grade", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                            //        $.ajax({
+                            //            url: "/Grades/RemovGrades",
+                            //            data: { id: GradeArray },
+                            //            type: "POST",
+                            //            success: function (response) {
+                            //                Easylearner.HandleResponse(response);
+                            //                bindGradeTable(tableId);
+                            //            },
+                            //            error: function (data) {
+                            //                console.log(data);
+                            //            }
+                            //        });
+                            //    }
+                            //    );
+
+                            //}
+
+                            //$(document).on("change", ".gradeCheckbox", function () {
+                            //    if ($(this).prop("checked") == true) {
+                            //        GradeArray.push(parseInt($(this).attr('id')));
+                            //    }
+                            //    if ($(this).prop("checked") == false) {
+                            //        arrayRemove(GradeArray, parseInt($(this).attr('id')));
+                            //    }
+
+                            //})
+
+                            //function bindlessons(rowdata) {
+                            //    let row = JSON.parse(rowdata);
+                            //    content = `<ul class="top-level-menu gradeList">
+                            //                                                <li>
+                            //                                                    <a href="#">${row.name}</a>
+                            //                                                    <ul class="second-level-menu">
+                            //                                                        <li><a href="javascript:;" onClick="AddEditLesson(0,${row.id})">Add Lesson</a></li>
+
+                            //                                                        <li>
+                            //                                                            <a href="#">View Lesson</a>
+                            //                                                            <ul class="third-level-menu">
+                            //                                                               {DynamicContent}
+
+                            //                                                            </ul>
+                            //                                                        </li>
+                            //                                                    </ul>
+                            //                                                </li>
+                            //                                            </ul>`;
+                            //    if (row.lessonList.length > 0) {
+
+                            //        var lessonlist = "";
+                            //        for (i = 0; i < row.lessonList.length; i++) {
+                            //            lessonlist += ` <li><a href="#">${row.lessonList[i].name}</a>
+                            //                                   <ul class="fourth-level-menu">
+                            //                                                <li><a href="javascript:;" onClick="AddEditLesson(${row.lessonList[i].id},${row.lessonList[i].gradeId})" >edit</a></li>
+                            //                                                <li><a href="javascript:;" onClick="DeleteLesson(${row.lessonList[i].id})">delete</a></li>
+                            //                                            </ul>
+                            //                               </li>`;
+
+                            //        }
+                            //        content = content.replace(" {DynamicContent}", lessonlist);
+                            //    } else {
+                            //        content = content.replace(" {DynamicContent}", "");
+                            //    }
+                            //    return content;
+                            //}
+
+                            //function AddEditLesson(lessonId = 0, gradeId) {
+                            //    $("#modalContent").load(`/Grades/_AddEditLesson?g=${gradeId}&l=${lessonId}`, function () {
+                            //        $("#divModal").modal('show');
+                            //    });
+
+                            //}
+
+    </script>
+
+}
+

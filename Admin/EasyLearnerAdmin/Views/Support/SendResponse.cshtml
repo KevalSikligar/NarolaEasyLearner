@@ -1,0 +1,65 @@
+﻿@model EasyLearner.Service.Dto.SupportResponseDto
+@{
+    ViewData["Title"] = "SendResponse";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form id="responseForm" asp-controller="Support" asp-action="AddResponse" method="post">
+    <div>
+        <div style="margin-top:10px;margin-bottom:10px;">
+            <div class="form-row mt-0">
+                <input type="hidden" asp-for="RequestId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <div class="form-group col-md-5">
+                    <label for="SubjectOfRequest">Subject of Support Request  <span class="text-danger">*</span></label>
+                    <input type="text" asp-for="SubjectOfRequest" disabled name="SubjectOfRequest" class="form-control" />
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="SubjectOfResponse">Subject of Support Response  <span class="text-danger">*</span></label>
+                    <input type="text" asp-for="SubjectOfResponse" required pattern=".*\S+.*" title="SubjectOfResponse is required" name="SubjectOfResponse" class="form-control" />
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="ResponseDescription">Description of Response Support  <span class="text-danger">*</span></label>
+                    <textarea type="text" asp-for="ResponseDescription" required pattern=".*\S+.*" title="ResponseDescription is required" name="ResponseDescription" class="form-control"></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-info" id="sendResponse"> Send Response of Support</button>
+        </div>
+    </div>
+</form>
+@section Scripts{
+  
+    <script>
+        
+        var validationresult = $("#responseForm").validate({
+            rules: {
+                "SubjectOfResponse": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "ResponseDescription": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                }
+            },
+            messages: {
+                "SubjectOfResponse": {
+                    required: "Please Enter Subject Of Response"
+                },
+                "ResponseDescription": {
+                    required: "Please Enter Response Description"
+                }
+            }
+        });
+
+    
+    </script>
+
+}

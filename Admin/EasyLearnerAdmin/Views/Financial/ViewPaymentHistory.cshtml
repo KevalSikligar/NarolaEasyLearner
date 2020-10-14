@@ -1,0 +1,222 @@
+﻿@model EasyLearner.Service.Dto.PaymentHistoryDto
+
+@{
+    ViewData["Title"] = "ViewPaymentHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+<style>
+    table.dataTable td {
+  word-break: break-word;
+}
+</style>
+@if (Model.AllTutor)
+{
+    <h1>Report total payemnt to all tutors</h1>
+}
+else
+{ <h1>Report Payment History for Tutor</h1>}
+<form id="frmPaymentHistory" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-row mt-0">
+
+        <div class="form-group col-md-6">
+            <label for="FromDate">From Date  <span class="text-danger">*</span></label>
+
+            <input type="text" asp-for="FromDate" name="FromDate" class="form-control" />
+        </div>
+        <div class="form-group col-md-6">
+            <label for="ToDate">To Date  <span class="text-danger">*</span></label>
+            <input type="text" asp-for="ToDate" name="ToDate" class="form-control" />
+        </div>
+        @if (!Model.AllTutor)
+        {
+            <div class="form-group col-md-6">
+                <label>Please type Username of tutor  <span class="text-danger">*</span></label>
+                <input type="text" asp-for="TutorName" name="TutorName" id="TutorName" class="form-control" />
+                @*<select name="TutorId" id="TutorId" asp-for="@Model.TutorId" class="form-control" asp-items="@ViewBag.TutorList">
+                        <option value="">--Select User name--</option>
+                    </select>*@
+            </div>
+        }
+
+    </div>
+    <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">OK</button>
+</form>
+
+<div id="PaymentHistory" hidden>
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="dtPayment">
+            <thead>
+                <tr>
+                    <th id="tutorColumn">Name of tutor</th>
+                    <th>Date of Payment</th>
+                    <th>Amount of Payment</th>
+                    <th>Description</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <center>
+
+        <a href="/Financial/Index/">Back to report</a>
+    </center>
+</div>
+
+
+
+@section Scripts
+{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('#FromDate').val("");
+            $('#ToDate').val("");
+            $('#FromDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+            $('#ToDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+
+        });
+
+        function bindPaymentTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Financial/GetTutorPaymentHistory",
+                "initComplete": function (settings, json) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    $.each(json.aaData, function (key, element) {
+                        if (element.tutorName === "" || element.tutorName === undefined || element.tutorName === null) {
+                            api.columns(1).visible(false);
+                            $("#tutorColumn").hide();
+                        } else {
+                            api.columns(1).visible(true);
+                            $("#tutorColumn").show();
+                        }
+                    });
+
+                },
+
+                "rowCallback": function (row, data, index) {
+
+                },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Students",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Payment"
+                },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "TutorName", "value": $("#TutorName").val() },
+                        { "name": "FromDate", "value": $("#FromDate").val() },
+                        { "name": "ToDate", "value": $("#ToDate").val() },
+                    );
+                },
+                "columns":
+                    [
+                        {
+                            "data": "tutorName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "paymentDate",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return moment(data).format("DD-MMM YY");
+                            }
+                        },
+                        {
+                            "data": "amount",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                debugger;
+                                return row.amount;
+                            }
+                        },
+                        {
+                            "data": "description",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        }
+                    ]
+            });
+        }
+
+
+        var validationresult = $("#frmPaymentHistory").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true },
+                "TutorName": {
+                    required: true
+                    //remote: {
+                    //    url: "/Financial/CheckTutorUserName",
+                    //    type: "GET"
+                    //}
+                }
+            },
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                },
+                "TutorName": {
+                    //remote: "Username not found.",
+                    required: "Please Type Username of tutor"
+                }
+            },
+            submitHandler: function (form) {
+                $("#PaymentHistory").removeAttr("hidden");
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                var ToDate = $("#ToDate").val();
+                var FromDate = $("#FromDate").val();
+                var TutorId = $("#TutorName").val();
+                tableId = "#dtPayment";
+                bindPaymentTable(tableId);
+
+                //$.post(post_url, form_data, function (response) {
+                //    //window.location.href = `/Financial/ViewPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&TutorName=${TutorId}`;
+
+                //});
+
+
+                //window.location.href = `/Financial/ViewPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&TutorId=${TutorId}`;
+
+            }
+        });
+    </script>
+}

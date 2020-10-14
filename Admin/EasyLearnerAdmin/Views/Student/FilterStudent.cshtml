@@ -1,0 +1,302 @@
+﻿@model EasyLearner.Service.Dto.StudentFilterDto
+@{
+    ViewData["Title"] = "FilterStudent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<form id="frmStudentfilter" method="post">
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <div>
+                <h5><b>Please select:-</b></h5>
+                <label for="IsMember">Memeber Student</label>
+                <input type="checkbox" asp-for="IsMember" name="IsMember" id="IsMember"><br />
+
+                <label for="IsNotMember">Non-Member Student</label>
+                <input type="checkbox" asp-for="IsNotMember" name="IsNotMember" id="IsNotMember"><br />
+            </div>
+            <span id="errormsg" style="color:red" hidden>Please select</span>
+        </div>
+        <div class="row">
+            <div class="col-sm-2 text-lg-left"><label>From Date <span class="text-danger">*</span></label></div>
+            <div class="col-sm-3">
+                <input type="text" asp-for="FromDate" id="FromDate" name="FromDate" class="form-control" />
+            </div>
+            <div class="col-sm-2"><label>To Date <span class="text-danger">*</span></label></div>
+            <div class="col-sm-3">
+                <input type="text" asp-for="ToDate" id="ToDate" name="ToDate" class="form-control" />
+            </div>
+            <div class="col-sm-2">
+                <input type="submit" id="btnNext" value="NEXT" class="btn btn-primary form-control" />
+            </div>
+            <br /><br />
+        </div>
+    </div>
+</form>
+
+<div id="studentList">
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <center><label><h5>List of Filter Student</h5></label></center>
+    </div>
+    <div>
+        <table id="dtStudent">
+            <thead>
+                <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>User name</th>
+                    <th>Major&Grade</th>
+                    <th>Member or non-member</th>
+                    <th>Subscription Service</th>
+                    <th>Type of Student</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <br />
+        <button id="report1" onclick="FilterStudentGradeWise()" class="btn btn-primary">Number Of Register In Diffrent Grade</button>
+        <button id="report2" onclick="NoOfQuestionAnswerGradeWise()" class="btn btn-primary">Number Of Q&A In Diffrent Grade</button>
+    </div>
+</div>
+
+
+
+@section Scripts
+{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+
+        var ToDate = "";
+        var FromDate = "";
+        function ViewStudent(id) {
+            window.location.href = '/Student/ViewStudent/' + id;
+        }
+
+        function FilterStudentGradeWise() {
+
+            window.location.href = `/Student/FilterStudentGradeWise?FromDate=${FromDate}&ToDate=${ToDate}`;
+        }
+
+        function NoOfQuestionAnswerGradeWise() {
+            window.location.href = `/Student/NoOfQuestionAnswerGradeWise/?FromDate=${FromDate}&ToDate=${ToDate}`;
+        }
+
+
+        var validationresult = $("#frmStudentfilter").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true }
+
+            },
+
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                }
+            },
+            submitHandler: function (form) {
+                ToDate = $("#ToDate").val();
+                FromDate = $("#FromDate").val();
+                if ($('#IsMember').is(":checked") != true && $('#IsNotMember').is(":checked") != true) {
+                    $("#errormsg").removeAttr("hidden");
+                }
+                else {
+                    $("#errormsg").attr("hidden", true);
+                    $("#studentList").show();
+                    //$("#btnNext").attr("disabled", true);
+                    tableId = "#dtStudent";
+                    bindStudentTable(tableId);
+                }
+
+            }
+        });
+
+
+
+
+        $("#studentList").hide();
+
+
+        $('#FromDate').datepicker
+            ({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+        $('#ToDate').datepicker
+            ({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+
+        //$("#btnNext").click(function ()
+        //{
+        //    $("#studentList").show();
+        //    //$("#report1").show();
+        //    //$("#report2").show();
+
+        //    $("#btnNext").attr("disabled", true);
+
+        //    tableId = "#dtStudent";
+        //    bindStudentTable(tableId);
+        //});
+
+        function bindStudentTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Student/GetFilterStudentList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Students",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Students"
+                },
+                fnServerParams: function (aoData) {
+
+                    aoData.push(
+                        { "name": "isMember", "value": $('#IsMember').is(":checked") },
+                        { "name": "IsNotMember", "value": $('#IsNotMember').is(":checked") },
+                        { "name": "fromDate", "value": $("#FromDate").val() },
+                        { "name": "toDate", "value": $("#ToDate").val() },
+                    );
+                },
+                "columns":
+                    [
+                        {
+                            "data": "rowNumber",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "studentName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "userName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "gradeName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "memberShipStatus",
+                            "autoWidth": true,
+                            "searchable": false,
+                            "orderable": false,
+                            //"className": "admin_toggle",
+                            "render": function (data, type, row) {
+                                //var myDate = new Date(row.exprireDate);
+                                //var today = new Date();
+                                //if (myDate < today) {
+                                //    return "Non-Member";
+                                //}
+                                //if (myDate > today) {
+                                //    return "Member";
+                                //}
+                                if (row.membershipStatus==true) {
+                                    return "Member";
+                                }
+                                if (row.membershipStatus == false) {
+                                    return "Non-Member";
+                                }
+                            }
+                        },
+                        {
+                            "data": "subscription",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                var content = "";
+                                if (row.subscription == 1) {
+                                    content = 'Annually/Normal';
+                                }
+                                if (row.subscription == 2) {
+                                    content = 'Annually/Plus';
+                                }
+                                if (row.subscription == 3) {
+                                    content = 'Monthly/Normal';
+                                }
+                                if (row.subscription == 4) {
+                                    content = 'Monthly/Plus';
+                                }
+                                return content;
+                            }
+                        },
+                        {
+                            "data": "studentStatus",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true
+                        },
+                        {
+                            "data": "id",
+                            "autoWidth": true,
+                            "searchable": false,
+                            "orderable": false,
+                            "render": function (data, type, row) {
+                                var element = `<button class="btn btn-info"  onClick="ViewStudent('${row.id}')" >View</button>`;
+                                return element;
+
+                                //var element = `<a href="javascript:;" onclick="ViewStudent('${row.id}')">View</a>`;
+                                //return element;
+                            }
+                        }
+                    ]
+            });
+            $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Student/ManageStudentIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+        }
+                            //});
+    </script>
+}

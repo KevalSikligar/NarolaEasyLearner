@@ -1,0 +1,70 @@
+﻿@model EasyLearner.Service.Dto.SettingDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Index";
+    Layout = null;
+}
+
+@*<link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>*@
+
+
+    <form id="frmsetting" asp-action="SetttingPageLevel" method="post">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Please select each page o type the Text! </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="accordian-block border-0">
+                <div class="accordian-para acc-show p-0">
+                    <div class="form-row mt-0">
+                        <div class="form-group col-md-12">
+                            <div>
+                                <label for="Page1">User guide For student</label>
+                                <input type="radio" asp-for="Title" name="Title" value="User guide For student"><br />
+
+                                <label for="Page2">FAQ For student</label>
+                                <input type="radio" asp-for="Title" name="Title" value="FAQ For student"><br />
+
+                                <label for="Page3">Major & Level & Lesson</label>
+                                <input type="radio" asp-for="Title" name="Title" value="Major & Level & Lesson"><br />
+
+                                <label for="Page4">About Us</label>
+                                <input type="radio" asp-for="Title" name="Title" value="About Us"><br />
+
+                                <label for="Page5">Rules & Regulations</label>
+                                <input type="radio" asp-for="Title" name="Title" value="Rules & Regulations"><br />
+
+                                <label for="Page6">Contact Us</label>
+                                <input type="radio" asp-for="Title" name="Title" value="Contact Us"><br />
+
+                                <label for="Page7">Help for tutor</label>
+                                <input type="radio" asp-for="Title" name="Title" value="Help for tutor"><br />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnsubmit" onclick="AddSettingdata()" class="btn btn-primary px-4" name="btnNext">NEXT</button>
+            <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+        </div>
+    </form>
+    <script>
+        $(document).ready(function () {
+             $("#btnsubmit").attr("disabled", true);
+            $("input[name=Title]:radio").change(function () {
+                  $("#btnsubmit").attr("disabled", false);
+            });
+
+        });
+    </script>
+
+
+
+

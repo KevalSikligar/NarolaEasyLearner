@@ -1,0 +1,127 @@
+﻿@model EasyLearner.Service.Dto.ExamDto
+@{
+    ViewData["Title"] = "EditQuestion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div>
+    <div>
+        <h2>Edit/Delete Questions</h2>
+    </div>    
+<div>
+    <center>  <h4>Name of  Exam: @Model.ExamNameAndYear </h4></center>
+</div>
+
+    <div>
+        <table id="dtEditQuestion">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Question</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="window.history.back();" class="btn btn-primary">Back</button>
+    </div>
+</div>
+@section Scripts{
+
+
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script>
+        var tableId = "";
+        var GradeArray = new Array();
+        $(document).ready(function () {
+            tableId = "#dtEditQuestion";
+            bindGradeTable(tableId);
+        });
+
+        function _EditQuestion(id,QuestionId) {
+            $("#modalContent").load(`/Exams/_AddQuestion?id=${id}&q=${QuestionId}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+        function deleteExamQuestion(id, QuestionId) {
+
+                Easylearner.Confirm("Delete Exam Question", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                    $.ajax({
+                        url: "/Exams/RemoveExamQuestion",
+                        data: { id: id, QuestionId: QuestionId },
+                        type: "POST",
+                        success: function (response) {
+                            Easylearner.HandleResponse(response);
+                            bindGradeTable(tableId);
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        }
+                    });
+                }
+                );
+
+     
+        }
+
+        function bindGradeTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Exams/GetQuestionList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                        { "name": "ExamId", "value": @Model.Id },
+                    );
+                },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Exams",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Exams"
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "question",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+
+
+                    },
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": false,
+                        "render": function (data, type, row) {
+                            var content = `<button type="button" class="btn btn-info" onclick="_EditQuestion(@Model.Id,${data})" > Edit </button> | <button type="button" onclick="deleteExamQuestion(@Model.Id,${data})" class="btn btn-danger">Delete</button>`;
+                            return content;
+                        }
+
+
+                    }
+                ]
+            });
+
+
+        }
+
+    </script>
+
+}
+

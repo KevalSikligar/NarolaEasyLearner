@@ -1,0 +1,254 @@
+﻿@model EasyLearner.Service.Dto.TutorFiltorDto;
+@{
+    ViewData["Title"] = "FilterTutor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+
+<form id="frmtutorfilter" method="get">
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <div>
+                <h5><b>Please select:-</b></h5>
+                <label for="IsActive">Active Tutor</label>
+                <input type="checkbox" asp-for="TutorisActive" name="TutorisActive" id="ActiveStatus"><br />
+
+                <label for="InActiveStatus">In-Active Tutor</label>
+                <input type="checkbox" asp-for="TutorisInActive" name="TutorisInActive" id="InActiveStatus"><br />
+            </div>
+            <span id="errormsg" style="color:red" hidden>Please select</span>
+        </div>
+        <div class="row">
+            <div class="col-sm-2 text-lg-left"><label>From Date <span class="text-danger">*</span></label></div>
+            <div class="col-sm-3">
+                <input type="text" asp-for="FromDate" id="FromDate" value="" name="FromDate" class="form-control" />
+            </div>
+            <div class="col-sm-2"><label>To Date <span class="text-danger">*</span></label></div>
+            <div class="col-sm-3">
+                <input type="text" asp-for="ToDate" id="ToDate" value="" name="ToDate" class="form-control" />
+            </div>
+            <div class="col-sm-2">
+                <input type="submit" id="btnsubmit" value="Search" class="btn btn-primary" />
+            </div>
+            <br /><br />
+        </div>
+    </div>
+</form>
+<div id="tutorlist">
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="dtTutor">
+            <thead>
+                <tr>
+                    <th>Row</th>
+                    <th>Name</th>
+                    <th>User Name</th>
+                    <th>Active or In-Active</th>
+                    <th>Relevant Lesson</th>
+                    <th>Number of Answers</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+        var status = "";
+        function TutorProfile(id) {
+            window.location.href = '/Tutor/TutorProfile/' + id;
+        }
+
+        var validationresult = $("#frmtutorfilter").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true }
+            },
+
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                }
+            },
+            submitHandler: function (form) {
+                //if ($("#ToDate").val() < $("#FromDate").val()) {
+                //    var response = { status: 0, message: "To Date must come after From Date!", data: null };
+                //    Easylearner.HandleResponse(response);
+                //}
+                if ($('#ActiveStatus').is(":checked") != true && $('#InActiveStatus').is(":checked") != true) {
+                    $("#errormsg").removeAttr("hidden");
+                }
+                else {
+                    $("#errormsg").attr("hidden", true);
+                    $("#tutorlist").show();
+                    tableId = "#dtTutor";
+                    bindTutorTable(tableId);
+                }
+            }
+        });
+
+        //$(document).ready(function () {
+
+        $("#tutorlist").hide();
+
+        //$("#btnsubmit").attr("disabled", false);
+
+        $('#FromDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+
+        $('#ToDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+
+        //$("#btnsubmit").click(function ()
+        //{
+        //        $("#tutorlist").show();
+        //        tableId = "#dtTutor";
+        //        bindTutorTable(tableId);
+
+        //});
+
+
+        var tableId = "";
+        var TutorArray = new Array();
+
+
+        function bindTutorTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                //bLengthChange: false,
+                "sAjaxSource": "/Tutor/GetFilterTutorList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "tutorisActive", "value": $('#ActiveStatus').is(":checked") },
+                        { "name": "tutorisInActive", "value": $('#InActiveStatus').is(":checked") },
+                        { "name": "fromDate", "value": $("#FromDate").val() },
+                        { "name": "toDate", "value": $("#ToDate").val() },
+                    );
+                },
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Tutors",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Tutors"
+                },
+                "columns": [
+                    {
+                        "data": "rowNumber",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        "data": "tutorName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    },
+
+                    {
+                        "data": "userName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "className": "admin_toggle",
+                        "render": function (data, type, row) {
+                            return statusToggle(row.id, data);
+                        }
+                    }, {
+                        "data": "lessonName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data) {
+
+                            if (data != null && data != '') {
+                                return data.slice(0, - 1);
+                            }
+                            else {
+                                return data
+                            }
+                        }
+                    },
+                    {
+                        "data": "noOfAnswerCount",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "render": function (data, type, row) {
+                            var element = `<button class="btn btn-info"  onClick="TutorProfile('${row.id}')" >View</button>`;
+                            return element;
+                            //var element = `<a href="javascript:;" onclick="TutorProfile('${row.id}')">View</a>`;
+                            //return element;
+                        }
+                    }
+
+                ]
+            });
+            $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Tutor/ManageTutorIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        tableId = "#dtTutor";
+                        bindTutorTable(tableId);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+        }
+                                //});
+    </script>
+}
+
+
+
+

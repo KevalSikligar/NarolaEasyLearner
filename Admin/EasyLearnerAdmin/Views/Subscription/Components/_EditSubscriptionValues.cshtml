@@ -1,0 +1,114 @@
+﻿@model EasyLearner.Service.Dto.SubscriptionTypeDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<form id="frmEditValuesSubscription" asp-action="AddEditSubscription" asp-controller="Subscription" method="post">
+    @if (Model.Resultcount >0)
+    {
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel"> Now you can edit other items of membership servcies.</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="accordian-block border-0">
+                <div class="accordian-para acc-show p-2">
+
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" name="Id" />
+                    <input type="hidden" asp-for="TypeId" name="TypeId" />
+
+                    <div class="form-row mt-0">
+                        <div class="form-group col-md-12">
+                            <label for="AllowedQuestion">Number of questions allowed :</label>
+                            <input type="text" asp-for="AllowedQuestion" name="AllowedQuestion" id="AllowedQuestion" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row mt-0">
+                        <div class="form-group col-md-12">
+                            <label for="Duration">Number of day's allowed:</label>
+                            <input type="number" asp-for="AllowedDays" name="AllowedDays" id="AllowedDays" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row mt-0">
+                        <div class="form-group col-md-12">
+                            <label for="Price">Price of membership services</label>
+                            <input type="text" asp-for="Price" name="Price" id="Price" class="form-control" />
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" id="btnSubscription" class="btn btn-outline-primary con_btn active">Edit</button>
+        </div>
+    }
+    else
+    {
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">  </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="accordian-block border-0">
+                <div class="accordian-para acc-show p-2">
+                    <h5 class="modal-title" id="exampleModalLabel"> Please Create membership service for selected items.</h5>
+                </div>
+            </div>
+        </div>
+    }
+</form>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var validationresult = $("#frmEditValuesSubscription").validate({
+            rules: {
+                "AllowedQuestion": {
+                    required: true,
+                    numeric:true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "AllowedDays": {
+                    required: true, minlength: 1,
+                    numeric:true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "Price": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                }
+            },
+            messages: {
+                "AllowedQuestion": { required: "Please enter a  Allowed Question" },
+                "AllowedDays": { required: "Please enter a Allowed Days", minlength: "Please Enter At Least 1 day" },
+                "Price": { required: "Please enter a  Price" }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    Easylearner.HandleResponse(response);
+                    if (response.status === 1) {
+                        closeModal();
+                    }
+                });
+
+            }
+        });
+    });
+
+</script>

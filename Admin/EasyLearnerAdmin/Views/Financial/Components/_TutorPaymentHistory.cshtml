@@ -1,0 +1,112 @@
+﻿@model EasyLearner.Service.Dto.PaymentHistoryDto
+@{
+    Layout = null;
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<form id="frmPaymentHistory" asp-action="ViewPaymentHistory" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Report Payment History for Tutor</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                <div class="form-row mt-0">
+
+                    <div class="form-group col-md-6">
+                        <label for="FromDate">From Date  <span class="text-danger">*</span></label>
+
+                        <input type="text" asp-for="FromDate" name="FromDate" class="form-control" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="ToDate">To Date  <span class="text-danger">*</span></label>
+                        <input type="text" asp-for="ToDate" name="ToDate" class="form-control" />
+                    </div>
+                    @if (!Model.AllTutor)
+                    {
+                        <div class="form-group col-md-6">
+                            <label>Please type Username of tutor  <span class="text-danger">*</span></label>
+                            <input type="text" asp-for="TutorName"  name="TutorName"  id="TutorName" class="form-control"/>
+                            @*<select name="TutorId" id="TutorId" asp-for="@Model.TutorId" class="form-control" asp-items="@ViewBag.TutorList">
+                                <option value="">--Select User name--</option>
+                            </select>*@
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Create Report</button>
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>
+<script src="~/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#FromDate').val("");
+          $('#ToDate').val("");
+        $('#FromDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+             format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        $('#ToDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        var validationresult = $("#frmPaymentHistory").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true },
+                "TutorName": {
+                    required: true,
+                    remote: {
+                        url: "/Financial/CheckTutorUserName",
+                        type: "GET"
+                    }
+                }
+            },
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                },
+                "TutorName": {
+                    remote: "Username not found.",
+                    required: "Please Type Username of tutor"
+                }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                var ToDate = $("#ToDate").val();
+                var FromDate = $("#FromDate").val();
+                var TutorId = $("#TutorName").val();
+                 $.post(post_url, form_data, function (response)
+                 {
+                        window.location.href = `/Financial/ViewPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&TutorName=${TutorId}`;
+
+                    });
+
+
+                //window.location.href = `/Financial/ViewPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&TutorId=${TutorId}`;
+
+            }
+        });
+    });
+
+</script>

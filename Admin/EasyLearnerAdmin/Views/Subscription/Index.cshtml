@@ -1,0 +1,110 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddEditSubscription(0)" class="btn btn-primary">Create Subscription</button>
+    </div>
+    <div>
+        <table id="dtSubscription">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Subscription Plan1</th>
+                    <th>Subscription Plan2</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var tableId = "";
+        $(document).ready(function () {
+            tableId = "#dtSubscription";
+            bindSubscriptionTable(tableId);
+        });
+
+        function AddEditSubscription(id) {
+            $("#modalContent").load(`/Subscription/_AddEditSubscription/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function bindSubscriptionTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Subscription/GetSubscriptionList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Subscription",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Subscription"
+                },
+                "columns": [
+                  {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            var element = `<button class="btn btn-info"  onClick="AddEditSubscription(${row.id},false)" >Edit</button>`;  
+                            return element;
+                            //var element = `<a href="javascript:;" onclick=AddEditSubscription(${row.id},false)><i class='fa fa-pencil'></i>Edit</a>`;
+                            //return element;
+                        }
+                    }, 
+                    {
+                        "data": "membershipType1",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                     {
+                        "data": "membershipType2",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "className": "admin_toggle",
+                         "render": function (data, type, row) {
+                            return statusToggle(row.id, data);
+                        }
+                    }
+                ]
+            });
+             $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Subscription/ManageSubscriptionIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+        }
+
+    </script>
+
+}

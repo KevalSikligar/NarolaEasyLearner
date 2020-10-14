@@ -1,0 +1,166 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddEditTutor(0)" class="btn btn-primary">Create Tutor</button>
+        <button type="button" onclick="DeleteTutors()" class="btn btn-danger">Delete Tutor</button>
+    </div>
+    <div>
+        <table id="dtTutor">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Tutor Name</th>
+                    <th>Lesson</th>
+                    <th>Phone no</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var tableId = "";
+        var TutorArray = new Array();
+
+        $(document).ready(function () {
+            tableId = "#dtTutor";
+            bindTutorTable(tableId);
+        });
+
+        function AddEditTutor(id) {
+            $("#modalContent").load(`/Tutor/_AddEditTutor/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function bindTutorTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Tutor/GetTutorList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Tutors",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Tutors"
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            var element = `<input type="checkbox" class="TutorCheckbox" id="${data}"/>`;
+                            return element;
+                        }
+                    },
+                    {
+                        "data": "tutorName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            var content = "";
+                            content = content + `<a href="javascript:;" onclick=AddEditTutor(${row.id},false) class="dropdown-item action"><i class="fa fa-trash" aria-hidden="true"></i> Edit Tutor</a>`;
+                            //content = content + `<a href="javascript:;" onclick=DeleteStudents(${row.id},true) class=" dropdown-item action"><i class="fa fa-eye" aria-hidden="true"></i> Delete Student</a>`;
+                            return dataTableAction(content, data);
+                        }
+                    },
+                    {
+                        "data": "lessonName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data) {
+
+                            if (data != null && data != '') {
+                                return data.slice(0, - 1);
+                            }
+                            else {
+                                return data
+                            }
+                        }
+                    
+                    },
+                       {
+                        "data": "mobileNo",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "className": "admin_toggle",
+                         "render": function (data, type, row) {
+                            return statusToggle(row.id, data);
+                        }
+                    }
+                ]
+            });
+             $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Tutor/ManageTutorIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+        }
+
+        function DeleteTutors() {
+            if (TutorArray.length === 0) {
+                alert("Please select atleast one tutor !");
+            }
+
+
+            Easylearner.Confirm("Delete Tutor", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                $.ajax({
+                    url: "/Tutor/Removetutors",
+                    data: { id: TutorArray },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        bindTutorTable(tableId);
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            );
+
+        }
+        $(document).on("change", ".TutorCheckbox", function () {
+            if ($(this).prop("checked") == true) {
+                TutorArray.push(parseInt($(this).attr('id')));
+            }
+            if ($(this).prop("checked") == false) {
+                arrayRemove(TutorArray, parseInt($(this).attr('id')));
+            }
+
+        })
+    </script>
+
+}

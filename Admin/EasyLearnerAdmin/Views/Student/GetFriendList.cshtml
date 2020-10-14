@@ -1,0 +1,121 @@
+﻿@model EasyLearner.Service.Dto.StudentDto
+@{
+    ViewData["Title"] = "GetFriendList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>Report of Invite Friend</h1>
+
+Name of Student: <input type="text"  readonly value="@Model.StudentName" id="StudentName" ><br /><br />
+
+User name of student: <input type="text"  value="@Model.UserName" id="UserName" readonly >
+<input type="hidden" value="@Model.Id" id="StudentId">
+
+<div id="StudentFriend">
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="dtStudentFriend">
+            <thead>
+                <tr>
+                    <th>Row</th>
+                    <th>Invitation Code</th>
+                    <th>Date Of Issue</th>
+                    <th>Consumer Username</th>
+                    <th>Date Of Use</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<center>
+
+    <a href="/Student/FilterStudent/">Back to report</a>
+</center>
+
+@section Scripts
+{
+    <script>
+
+        $(document).ready(function () {
+
+            tableId = "#dtStudentFriend";
+            bindStudentFriendListTable(tableId);
+        });
+
+        function bindStudentFriendListTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Student/GetStudentFriendList",
+                "initComplete": function (settings, json) {
+                },
+                "rowCallback": function (row, data, index) {
+                },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Invite Friend",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Invite Friend"
+                },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "Id", "value": $("#StudentId").val() },
+                    );
+                },
+                "columns":
+                    [
+                         {
+                                "data": "id",
+                                "autoWidth": true,
+                                "searchable": true,
+                                "orderable": true,
+                                "render": function (data, type, row) {
+                                    return data;
+                                }
+                            },
+                        {
+                            "data": "invitationCode",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true
+                        },
+                        {
+                            "data": "dateOfIssue",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return moment(data).format("DD-MMM YY ");
+                            }
+                        },
+                        {
+                            "data": "consumerUserName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "dateOfUse",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return moment(data).format("DD-MMM YY ");
+                            }
+                        },
+
+
+                    ]
+            });
+
+        }
+
+    </script>
+}

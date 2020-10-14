@@ -1,0 +1,151 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+
+}
+
+
+
+@*<h1>@ViewData["Title"]</h1>*@
+    <div class="login-bg">
+        <div class="login-page">
+            <div class="login-logo">
+                <img src="~/images/Logo.PNG" />
+                <div class="version-text"> version 1.0</div>
+            </div>
+            <div class="col-md-12">
+                <div>
+                    <form id="account" method="post">
+                        <h5 class="text-center mb-4 font-weight-bold">Welcome to Parsian!</h5>
+                        @*<div asp-validation-summary="All" class="text-danger"></div>*@
+                        <div class="form-group">
+                            <label> UserName </label>
+                            <input asp-for="Input.Email" id="txtEmail" class="form-control" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Input.Password"></label>
+                            <input asp-for="Input.Password" id="txtpassword" class="form-control" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        @*<div class="form-group">
+                            <div class="checkbox">
+                                <label asp-for="Input.RememberMe">
+                                    <input asp-for="Input.RememberMe" />
+                                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                </label>
+                            </div>
+                        </div>*@
+                        <div class="form-group text-md-right mt-4">
+                            <button type="submit" id="btnlogin" class="btn btn-primary">Log in</button>
+                        </div>
+                        <div class="form-group">
+                            @*<p>
+                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                            </p>*@
+                            @*<p>
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                            </p>*@
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @*<div class="col-md-6 col-md-offset-2">
+                <section>
+                    <h4>Use another service to log in.</h4>
+                    <hr />
+                    @{
+                        if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                        {
+                            <div>
+                                <p>
+                                    There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
+                                    for details on setting up this ASP.NET application to support logging in via external services.
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                <div>
+                                    <p>
+                                        @foreach (var provider in Model.ExternalLogins)
+                                        {
+                                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                        }
+                                    </p>
+                                </div>
+                            </form>
+                        }
+                    }
+                </section>
+            </div>*@
+        </div>
+
+    </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/sweetalert.js"></script>
+    <link href="~/css/sweetalert.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function ()
+        {
+            $("#btnlogin").attr("disabled", true);
+
+
+            if ($("#txtpassword").val() != null && $("#txtEmail").val() != null)
+            {
+                    $("#btnlogin").attr("disabled", false);
+            }
+            else
+            {
+                     $("#btnlogin").attr("disabled", true);
+            }
+
+            if ('@Html.Raw(TempData["WrongUserNamePasswordAlert"])' != "")
+            {
+                swal({
+                       title: 'Error!',
+                       text: '@Html.Raw(TempData["WrongUserNamePasswordAlert"])',
+                       type: 'warning',
+                       showCancelButton: true,
+                       cancelButtonText: 'Cancel'
+                }).then(function ()
+                {
+
+                }, function (dismiss)
+                {
+                        if (dismiss == 'cancel')
+                        {
+
+                        }
+            });
+            }
+
+             if ('@Html.Raw(TempData["InActiveValidationAlert"])' != "") {
+               swal({
+                       title: 'Error!',
+                       text: '@Html.Raw(TempData["InActiveValidationAlert"])',
+                       type: 'warning',
+                       showCancelButton: true,
+                       cancelButtonText: 'Cancel'
+                }).then(function ()
+                {
+                }, function (dismiss)
+                {
+                        if (dismiss == 'cancel')
+                        {
+
+                        }
+            });
+            }
+        });
+
+    </script>
+}
+

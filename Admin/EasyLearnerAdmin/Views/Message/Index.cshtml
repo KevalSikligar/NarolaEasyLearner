@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <label><h3>Send Message</h3></label>
+    </div>
+    <div>
+        <div class="form-row mt-0">
+            <div class="form-group col-md-12">
+                <label class="radio-inline">
+                    <input type="radio" name="radMessage" value="1"> Send message to one or more student
+                </label>
+            </div>
+        </div>
+
+        <div class="form-row mt-0">
+            <div class="form-group col-md-12">
+                <label class="radio-inline">
+                    <input type="radio" name="radMessage" value="2"> Send message to those who entered their mobile but did not register!
+                </label>
+            </div>
+        </div>
+
+        <div class="form-row mt-0">
+            <div class="form-group col-md-12">
+                <label class="radio-inline">
+                    <input type="radio" name="radMessage" value="3"> Send message to those whose membership has expired!
+                </label>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <button type="submit" id="btnNext" class="btn btn-outline-primary con_btn active" disabled>Next</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+          
+            $('input[type=radio][name=radMessage]').change(function () {
+                $('#btnNext').removeAttr("disabled");
+            });
+
+            $("#btnNext").click(function () {
+                var radMessage = $("input[name='radMessage']:checked").val();
+                if (radMessage == 1) {
+                     window.location.href='@Url.Action("SendMessage1", "Message",new { id = 0 })';
+                }
+                if (radMessage == 2) {
+                     window.location.href='@Url.Action("SendMessage2", "Message",new { messageNo = 2,id=0 })';
+                }
+                if (radMessage == 3) {
+                     window.location.href='@Url.Action("SendMessage2", "Message",new { messageNo =3,id=0  })';
+                }
+            });
+
+        });
+    </script>
+
+}

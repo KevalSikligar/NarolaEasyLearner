@@ -1,0 +1,112 @@
+﻿@model EasyLearner.Service.Dto.MessageDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "SendMessage1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form id="frmSendMessage1" asp-action="AddEditMessage" method="post">
+    <h4 class="modal-title" id="exampleModalLabel">Send message to one or more student</h4><br />
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Id" asp-for="Id" />
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="StudentName">User name : <span class="text-danger">*</span></label>
+            <input type="text" asp-for="UserName" name="UserName" class="form-control" id="UserName" />
+            <span id="errorMessage" style="color:red" hidden>Please add User name</span>
+            <input type="text" name="StudentIdList" class="form-control" id="StudentIdList" asp-for="StudentIdList" hidden />
+            <button type="button" class="btn btn-info btn-sm" style="margin-top:10px;" onclick="AssignStudent();">
+                <span class="glyphicon glyphicon-plus"></span>Plus
+            </button>
+        </div>
+
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="SubMessage">Subject of message  <span class="text-danger">*</span></label>
+            <input type="text" name="MessageText" class="form-control" id="MessageText" asp-for="MessageText" autocomplete="off" />
+            @*<span asp-validation-for="MessageText" class="text-danger"></span>*@
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="DesMessage">Description of message  <span class="text-danger">*</span></label>
+            <textarea rows="5" name="Description" class="form-control" asp-for="Description" id="Description"></textarea>
+            @*<span asp-validation-for="Description" class="text-danger"></span>*@
+        </div>
+    </div>
+    <div>
+        <button type="submit" id="btnSend" class="btn btn-outline-primary con_btn active">Send</button>
+        <a class="btn btn-outline-primary con_btn mr-auto" href="@Url.Action("Index","Message")">Back</a>
+    </div>
+</form>
+
+@section Scripts{
+    <script src="~/js/jquery.mask.js"></script>
+    <script>
+        $(document).ready(function () {
+
+
+        });
+         var validationresult = $("#frmSendMessage1").validate({
+                rules: {
+                 "MessageText": {
+                        required: true,
+                      normalizer: function (value) {
+                        return $.trim(value);
+                        }
+                 },
+                    "UserName": {
+                    required: true
+                    //remote: {
+                    //    url: "/Message/CheckUserName",
+                    //    type: "GET"
+                    //}
+                 },
+                 "Description": {
+                     required: true,
+                      normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                 }
+                },
+             messages: {
+                //     "UserName": {
+                //    remote: "Username not found."
+                //}
+                },
+             submitHandler: function (form) {
+                 if ($("#UserName").val() == "") {
+                     $('#errorMessage').removeAttr('hidden');
+                 }
+                 else {
+                     let post_url = form.action;
+                    let form_data = $(form).serialize();
+                     $.post(post_url, form_data, function (response) {
+                         setTimeout(function () {
+
+                             Easylearner.HandleResponse(response);
+                             $("#UserName").val("");
+                             $("#MessageText").val("");
+                             $("#Description").val("");
+
+                             if (response.status === 1) {
+                                 closeModal();
+                                 //window.location.href = '@Url.Action("Index", "Message")';
+                             }
+                         });
+                    });
+                }
+                 }
+
+            });
+        function AssignStudent() {
+            $("#modalContent").load(`/Message/_AssignStudent/`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+         //$('input[name="UserName"]').mask('00000000000');
+
+    </script>
+
+}

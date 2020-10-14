@@ -1,0 +1,86 @@
+﻿@model EasyLearner.Service.Dto.MessageDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "SendMessage1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<form id="frmSendMessage2" asp-action="AddEditMessage" method="post">
+    <h5 class="modal-title" id="exampleModalLabel">@ViewBag.TextTitle</h5><br />
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Id" asp-for="Id" />
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="FromDate">From Date <span class="text-danger">*</span></label>
+            <input type="text" name="FromDate" class="form-control" asp-for="FromDate" id="FromDate" />
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="ToDate">To Date <span class="text-danger">*</span></label>
+            <input type="text" name="ToDate" class="form-control" asp-for="ToDate" id="ToDate"/>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-6">
+            <label for="MessageType">Type a Message <span class="text-danger">*</span></label>
+            <textarea rows="5" name="MessageText" class="form-control" asp-for="MessageText" id="MessageText"></textarea>
+        </div>
+    </div>
+    <div>
+        <button type="submit" id="btnSend" class="btn btn-outline-primary con_btn active">Send</button>
+        <a class="btn btn-outline-primary con_btn mr-auto" href="@Url.Action("Index","Message")">Back</a>
+    </div>
+</form>
+
+@section Scripts{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+
+    <script>
+        var validationresult = $("#frmSendMessage2").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true },
+                "MessageText": {
+                    required: true,
+                     normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+            },
+            messages: {
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    Easylearner.HandleResponse(response);
+                    $("#FromDate").val("");
+                    $("#ToDate").val("");
+                    $("#MessageText").val("");
+
+                    if (response.status === 1) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+        var currentDate = new Date();
+        $("#FromDate").val(String(currentDate.getDate()) + "-" +((currentDate.getMonth() < 9) ? "0" : "") + String(currentDate.getMonth() + 1)+ "-" +currentDate.getFullYear());
+        $("#ToDate").val(String(currentDate.getDate()) + "-" +((currentDate.getMonth() < 9) ? "0" : "") + String(currentDate.getMonth() + 1)+ "-" +currentDate.getFullYear());
+
+       $('#FromDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+           format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        $('#ToDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+           format: "yyyy/mm/dd",
+            language: "tr"
+        });
+    </script>
+}

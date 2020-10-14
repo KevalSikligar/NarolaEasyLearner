@@ -1,0 +1,210 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "GradeDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+
+    <h1>Grades and Lessons</h1>
+  
+    <div id="GradeDataTableSection">
+        <table id="dtGrade">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th style="display:none">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddEditGrade(0)" class="btn btn-primary">Add Grade</button>
+        <button type="button" onclick="ViewGrades()" class="btn btn-info">View Grades and Lessons</button>
+        
+    </div>
+</div>
+@section Scripts{
+
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script>
+
+        var tableId = "";
+        var GradeArray = new Array();
+        $(document).ready(function () {
+            tableId = "#dtGrade";
+            bindGradeTable(tableId);
+        });
+
+        function ViewGrades() {
+            window.location.href = `/Grades/DisplayGradeLesson`;
+        } 
+
+        function AddEditGrade(id) {
+            $("#modalContent").load(`/Grades/_AddEditGrade/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function bindGradeTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Grades/GetGradeList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Grades",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Grades"
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "name",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            
+                            return bindlessons(JSON.stringify(row))
+                        }
+                    },
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "visible":false,
+                        "className": "admin_toggle",
+                        "render": function (data, type, row) {
+                            return statusToggle(row.id, data);
+                        }
+
+                    }
+                ]
+            });
+
+            $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Grades/ManageGradeIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+
+
+        }
+
+        function DeleteLesson(lessonId) {
+
+
+            Easylearner.Confirm("Delete Lesson", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                $.ajax({
+                    url: "/Grades/RemovLesson",
+                    data: { id: lessonId },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        bindGradeTable(tableId);
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            );
+
+        }
+        function DeleteGrades(GradeId) {
+
+            Easylearner.Confirm("Delete Grade", Easylearner.typeModel.Warning, "Deleting grade will delete its lessons too,Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                $.ajax({
+                    url: "/Grades/RemovGrades",
+                    data: { id: GradeId },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        bindGradeTable(tableId);
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            );
+
+        }
+
+    
+        function bindlessons(rowdata ,isRow) {
+            let row = JSON.parse(rowdata);
+
+                content = `<ul class="top-level-menu gradeList">
+                                                            <li style="width:auto">
+                                                                <a href="#">${row.name}</a>
+                                                                <ul class="second-level-menu">
+                                                                    <li><a href="javascript:;" onClick="AddEditLesson(0,${row.id})">Add Lesson</a></li>
+
+                                                                    <li>
+                                                                        <a href="#">View Lesson</a>
+                                                                        <ul class="third-level-menu">
+                                                                           {DynamicContent}
+
+                                                                        </ul>
+                                                                    </li>
+                                                                   <li><a href="javascript:;" onClick="AddEditGrade(${row.id})">Edit Grade</a></li>
+                                                                   <li><a href="javascript:;" onClick="DeleteGrades(${row.id})">Delete Grade</a></li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>`;
+                if (row.lessonList.length > 0) {
+
+                    var lessonlist = "";
+                    for (i = 0; i < row.lessonList.length; i++) {
+                        lessonlist += ` <li><a href="#">${row.lessonList[i].name}</a>
+                                               <ul class="fourth-level-menu">
+                                                            <li><a href="javascript:;" onClick="AddEditLesson(${row.lessonList[i].id},${row.lessonList[i].gradeId})" >edit</a></li>
+                                                            <li><a href="javascript:;" onClick="DeleteLesson(${row.lessonList[i].id})">delete</a></li>
+                                                        </ul>
+                                           </li>`;
+
+                    }
+                    content = content.replace(" {DynamicContent}", lessonlist);
+                } else {
+                    content = content.replace(" {DynamicContent}", "");
+                }
+                return content;
+
+          
+        }
+
+        function AddEditLesson(lessonId = 0, gradeId) {
+            $("#modalContent").load(`/Grades/_AddEditLesson?g=${gradeId}&l=${lessonId}`, function () {
+                $("#divModal").modal('show');
+            });
+
+        }
+
+    </script>
+
+}

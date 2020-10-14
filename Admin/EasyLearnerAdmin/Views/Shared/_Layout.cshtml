@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Identity
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyLearnerAdmin</title>
+    <link href="~/EasyLearnerBundle/EasyLearner.min.css" rel="stylesheet" />
+    <link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+   
+
+</head>
+<body dir="ltr">
+    @if (User.Identity.IsAuthenticated)
+    {
+
+    <header>
+        <div class="top-header">
+            <div class="container">
+                <nav class="navbar navbar-expand-md navbar-light bg-light justify-content-end">
+                    <ul class="navbar-nav text-md-right">
+                        <li class="nav-item">
+                            <div id="google_translate_element"></div>
+                        </li>
+                        <li class="nav-item ml-3">
+                            <input type="radio" id="ltr" name="dir" value="ltr" checked /> LTR &nbsp;&nbsp;
+                            <input type="radio" id="rtl" name="dir" value="rtl" /> RTL
+
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                @*<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EasyLearnerAdmin</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>*@
+                <nav class="navbar navbar-expand-md navbar-light bg-light">
+
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+                        <ul class="navbar-nav">
+                            @if (User.IsInRole("Admin"))
+                            {
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Setting </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="#">Staff</a>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" asp-controller="Staff" asp-action="Create">Creation</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Staff" asp-action="EditStaff">Edit/Delete</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a class="dropdown-item" asp-controller="Grades" asp-action="Index">Grade & Lesson</a></li>
+                                        @*<li><a class="dropdown-item" asp-controller="Home" asp-action="Index">Language</a></li>*@
+                                        <li><a class="dropdown-item" asp-controller="Staff" asp-action="StaffLog">Log</a></li>
+                                        <li><a class="dropdown-item" onclick="AddEditSetting();">Text</a></li>
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item">Subscription</a>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" onclick="AddSubscription(0)">Create</a></li>
+                                                <li><a class="dropdown-item" onclick="EditSubscription()">Edit</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a class="dropdown-item"  onclick="EditInvitation()">Invitation Code</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Student </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <li><a class="dropdown-item" onclick="AddEditStudent(0)"> Creation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Student" asp-action="FilterStudent">Filter Student</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Tutor </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <li><a class="dropdown-item" onclick="AddEditTutor(0)">Creation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tutor" asp-action="Tutorfilter">Filter Tutor</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Q&A </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <li><a class="dropdown-item" asp-controller="QA" asp-action="Index">Report</a></li>
+                                    </ul>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Support" asp-action="Index">Support</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Message" asp-action="Index">Outbox</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Financial" asp-action="Index">Financial</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Exams" asp-action="Index">Exams</a>
+                                </li>
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "SettingMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "SettingMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Setting </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                                            <li class="dropdown-submenu">
+                                                <a class="dropdown-item dropdown-toggle" href="#">Staff</a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" asp-controller="Staff" asp-action="Create">Creation</a></li>
+                                                    <li><a class="dropdown-item" asp-controller="Staff" asp-action="EditStaff">Edit/Delete</a></li>
+                                                </ul>
+                                            </li>
+                                            <li><a class="dropdown-item" asp-controller="Grades" asp-action="Index">Grade & Lesson</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Index">Language</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Staff" asp-action="StaffLog">Log</a></li>
+                                            <li><a class="dropdown-item" onclick="AddEditSetting();">Text</a></li>
+                                            <li class="dropdown-submenu">
+                                                <a class="dropdown-item" @*asp-controller="Subscription" asp-action="Index"*@>Subscription</a>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" onclick="AddSubscription(0)">Create</a></li>
+                                                    <li><a class="dropdown-item" onclick="EditSubscription()">Edit</a></li>
+                                                </ul>
+                                            </li>
+                                            <li><a class="dropdown-item" onclick="EditInvitation()">Invitation Code</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            }
+
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "StudentMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "StudentMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Student </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item" onclick="AddEditStudent(0)"> Creation</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Student" asp-action="FilterStudent">Filter Student</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "TutorMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "TutorMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Tutor </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item" onclick="AddEditTutor(0)">Creation</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Tutor" asp-action="Tutorfilter">Filter Tutor</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "QAMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "QAMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="javascript:;" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Q&A </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item" asp-controller="QA" asp-action="Index">Report</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "SupportMenu") != null)
+                            {
+
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "SupportMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Support" asp-action="Index">Support</a>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "OutBoxMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "OutBoxMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Message" asp-action="Index">Outbox</a>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "FinancialMenu") != null)
+                            {
+
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "FinancialMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Financial" asp-action="Index">Financial</a>
+                                    </li>
+                                }
+                            }
+                            @if (User.Claims.FirstOrDefault(x => x.Type == "ExamsMenu") != null)
+                            {
+                                @if (User.Claims.FirstOrDefault(x => x.Type == "ExamsMenu").Value.Equals("GRANTED"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Exams" asp-action="Index">Exams</a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </nav>
+                <partial name="_LoginPartial" />
+            </div>
+        </nav>
+    </header>
+    }
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+            <!-- Modal -->
+            <div class="modal fade admin_modelpop" id="divModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div id="modalContent" ></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - EasyLearnerAdmin - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/js/Easylearner.min.js"></script>
+    <script>
+       
+        function AddEditSetting() {
+            $("#modalContent").load(`/Setting/_SettingText/`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+      
+          function AddSubscription(id) {
+            $("#modalContent").load(`/Subscription/_AddSubscription/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+         function EditSubscription() {
+            $("#modalContent").load(`/Subscription/_EditSubscription`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+         function EditInvitation() {
+            $("#modalContent").load(`/Friend/_AddEditInvitationCode`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+         function AddEditStudent(id) {
+           $("#modalContent").load(`/Student/_AddEditStudent/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+         function AddEditTutor(id) {
+            $("#modalContent").load(`/Tutor/_AddEditTutor/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
+        }
+     
+        $('input[name="dir"]').change(function () {
+            var direction = $(this).val();
+            $('body').attr('dir',direction);
+
+        });
+
+    </script>
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script src="~/js/jquery-input-mask-phone-number.js"></script>
+</body>
+</html>

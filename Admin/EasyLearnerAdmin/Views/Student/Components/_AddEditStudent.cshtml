@@ -1,0 +1,221 @@
+﻿@model EasyLearner.Service.Dto.StudentDto
+@{
+    Layout = null;
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+<form id="frmStudent" asp-action="AddEditStudent" asp-controller="Student" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Student Registration</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-2">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" name="Id" />
+                <div class="form-row mt-0">
+                    <label for="StudentName">Name of Student <span class="text-danger"></span> :</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">*</span>
+                        </div>
+                        <input type="text" asp-for="StudentName" name="StudentName" class="form-control" />
+                    </div>
+
+
+                    @*<div class="form-group col-md-12">
+                            <label for="StudentName">Name of Student <span class="text-danger"></span> :</label>
+                            <span class="input-group-text">*</span>
+                            <input type="text" asp-for="StudentName" name="StudentName" class="form-control" />
+                        </div>*@
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="UserName">User name :</label>
+                        <input type="text" id="UserName" asp-for="UserName" name="UserName" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="Name">Major & Level </label>
+                        <select id="GradeID" name="GradeId" asp-items="@ViewBag.GradeList" class="form-control">
+                            <option value="">--Select Grade--</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="Name">Status :</label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="StudentStatus" id="StudentStatus" name="StudentStatus" value="Student of high school"> Student of high school
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="StudentStatus" id="StudentStatus" name="StudentStatus" value="Student of University"> Student of University
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="StudentStatus" id="StudentStatus" name="StudentStatus" value="Parent"> Parent
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="optradio">Subscription :</label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="Subscription" id="Subscription" name="Subscription" value="1"> Annually/Normal
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="Subscription" id="Subscription" name="Subscription" value="2"> Annually/Plus
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="Subscription" id="Subscription" name="Subscription" value="3"> Monthly/Normal
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" asp-for="Subscription" id="Subscription" name="Subscription" value="4"> Monthly/Plus
+                        </label>
+                    </div>
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="RegistrationDate">Date of Registration:</label>
+                        @*<input type="datetime" asp-for="RegistrationDate" name="RegistrationDate" class="form-control" />*@
+                        <input type="text" asp-for="RegistrationDate" id="RegistrationDate" name="RegistrationDate" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="PaymentAmount">Payment amount:</label>
+                        <input type="number" asp-for="PaymentAmount" name="PaymentAmount" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="PaymentExplanation">Payment explanation:</label>
+                        <textarea rows="2" asp-for="PaymentExplanation" name="PaymentExplanation" class="form-control"></textarea>
+                        @*<input type="text" asp-for="PaymentExplanation" name="PaymentExplanation" class="form-control" />*@
+                    </div>
+                </div>
+
+                @if (Model.Id == 0)
+                {
+                    <div class="form-row mt-0">
+                        <div class="form-group col-md-12">
+                            <label for="UserPassword">Password:</label>
+                            <input type="password" asp-for="UserPassword" name="UserPassword" class="form-control" />
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Creation</button>
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>
+
+
+<script src="~/js/bootstrap-datepicker.js"></script>
+<script src="~/js/jquery.mask.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var validationresult = $("#frmStudent").validate({
+            rules: {
+                "StudentName": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "UserName": { required: true },
+                "UserPassword": {
+                    required: true,
+                    minlength: 10
+                },
+                "GradeId": {
+                    required:
+                    {
+                        depends: function (element) {
+                            return $("#GradeID").val() == "0";
+                        }
+                    }
+                },
+                "RegistrationDate": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "PaymentAmount": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "PaymentExplanation": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "UserPassword": { required: true },
+                "StudentStatus": { required: true },
+                "Subscription": { required: true },
+                "GradeId": { required: true }
+            },
+            messages: {
+                "StudentName": {
+                    required: "Please enter a student name"
+                },
+                "UserName": {
+                    required: "Please enter a user name",
+                    minlength: "Please Enter 10 Digits."
+                },
+                "UserPassword": {
+                    required: "Please enter a password"
+                },
+                "PaymentAmount": { required: "Please enter a payment amount" },
+                "PaymentExplanation": { required: "Please enter a payment explanation" },
+                "RegistrationDate": {
+                    required: "Please enter a Registration Date"
+                },
+                "GradeId": {
+                    required: "Please select Grade"
+                },
+                "StudentStatus": {
+                    required: "Please select Status"
+                },
+                "Subscription": {
+                    required: "Please select Subscription"
+                },
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    Easylearner.HandleResponse(response);
+                    if (response.status === 1) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+
+        $('#RegistrationDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "dd/MM/yyyy",
+            language: "tr"
+        });
+
+        $("#RegistrationDate").datepicker("setDate", new Date());
+        $('input[name="UserName"]').mask('00000000000');
+
+    });
+
+</script>

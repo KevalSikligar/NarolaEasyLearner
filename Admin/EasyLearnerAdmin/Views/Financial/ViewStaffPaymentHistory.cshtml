@@ -1,0 +1,218 @@
+﻿@model EasyLearner.Service.Dto.PaymentHistoryDto
+
+@{
+    ViewData["Title"] = "ViewPaymentHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+@if (!Model.AllStaff)
+{
+    <h1>Report payment history one staff</h1>
+}
+else
+{
+    <h1>Report total payment to all staff</h1>
+}
+
+
+
+<form id="frmStaffPaymentHistory" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-row mt-0">
+
+        <div class="form-group col-md-6">
+            <label for="FromDate">From Date  <span class="text-danger">*</span></label>
+
+            <input type="text" asp-for="FromDate" name="FromDate" class="form-control" />
+        </div>
+        <div class="form-group col-md-6">
+            <label for="ToDate">To Date  <span class="text-danger">*</span></label>
+            <input type="text" asp-for="ToDate" name="ToDate" class="form-control" />
+        </div>
+        @if (!Model.AllStaff)
+        {
+            <div class="form-group col-md-6">
+                <label>Please type the Username of Staff  <span class="text-danger">*</span></label>
+                <input type="text" asp-for="StaffName" name="StaffName" id="StaffName" class="form-control" />
+                @*<select name="StaffId" id="StaffId" asp-for="@Model.StaffId" class="form-control" asp-items="@ViewBag.StaffList">
+                        <option value="">--Select Staff--</option>
+                    </select>*@
+            </div>
+        }
+
+    </div>
+    <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Ok</button>
+</form>
+
+<div id="StaffPaymentHistory" hidden>
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="dtPaymentStaff">
+            <thead>
+                <tr>
+                    <th id="staffColumn">Name of Staff</th>
+                    <th>Date of Payment</th>
+                    <th>Amount of Payment</th>
+                    <th>Description</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <center>
+        <a href="/Financial/Index/">Back to report</a>
+    </center>
+</div>
+
+
+@section Scripts
+{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('#FromDate').val("");
+            $('#ToDate').val("");
+            $('#FromDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+            $('#ToDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+            //tableId = "#dtPaymentStaff";
+            //bindPaymentTable(tableId);
+        });
+
+        function bindPaymentTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Financial/GetStaffPaymentHistory",
+                "initComplete": function (settings, json) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    $.each(json.aaData, function (key, element) {
+                        if (element.staffName === "" || element.staffName === undefined || element.staffName === null) {
+                            api.columns(1).visible(false);
+                            $("#staffColumn").hide();
+                        } else {
+                            api.columns(1).visible(true);
+                            $("#staffColumn").show();
+                        }
+                    });
+
+                },
+
+                "rowCallback": function (row, data, index) {
+
+                },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Staff",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Payment"
+                },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "StaffName", "value": $("#StaffName").val() },
+                        { "name": "FromDate", "value": $("#FromDate").val() },
+                        { "name": "ToDate", "value": $("#ToDate").val() },
+                    );
+                },
+                "columns":
+                    [
+                        {
+                            "data": "staffName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "paymentDate",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+
+                                return moment(data).format("DD-MMM YY ");
+                            }
+                        }
+                        ,
+                        {
+                            "data": "amount",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "description",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        }
+
+                    ]
+            });
+
+        }
+        var validationresult = $("#frmStaffPaymentHistory").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true },
+                "StaffName": {
+                    required: true
+                    //remote: {
+                    //    url: "/Financial/CheckStaffUserName",
+                    //    type: "GET"
+                    //}
+                }
+
+            },
+
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                },
+                "StaffName": {
+                    remote: "Username not found."
+                    //required: "Please Type Username of Staff"
+                }
+            },
+            submitHandler: function (form) {
+                $("#StaffPaymentHistory").removeAttr("hidden");
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                var ToDate = $("#ToDate").val();
+                var FromDate = $("#FromDate").val();
+                var StaffId = $("#StaffName").val();
+                tableId = "#dtPaymentStaff";
+                bindPaymentTable(tableId);
+                //$.post(post_url, form_data, function (response) {
+                //    window.location.href = `/Financial/ViewStaffPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&StaffName=${StaffId}`;
+                //});
+            }
+
+        });
+    </script>
+}

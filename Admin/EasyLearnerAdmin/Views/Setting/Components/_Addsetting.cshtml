@@ -1,0 +1,176 @@
+﻿@model EasyLearner.Service.Dto.SettingDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Addsetting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<form id="frmsettingpage" asp-action="AddSetting" method="post">
+
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <div>
+                            @Html.AntiForgeryToken()
+                            <input type="text" class="form-control" asp-for="Id" value="@Model.Id" hidden />
+
+                            <div class="form-group">
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" asp-for="Title" value="@Model.Title" readonly="true" />
+                                    <br /><br />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-10" id="summerNote">
+                                    <textarea id="contexteditor" class="form-control content-editor" name="Html" asp-for="Html"></textarea>
+                                    <span id="HtmlText" style="color:red;" hidden>This field is required. </span>
+                                    <br /><br />
+                                </div>
+                            </div>
+
+                            <div class="form-horizontal">
+                                <div class="col-md-10 text-center">
+                                    <button type="submit" id="btnregister" class="btn bg-primary" value="Create">Register</button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@section Scripts{
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <script>
+        var validationresult = $("#frmsettingpage").validate({
+                    rules:
+                    {
+                        "Html": {
+                            required: true,
+                            normalizer: function (value) {
+                                return $.trim(value);
+                            }
+                        }
+                    },
+
+                    messages: {
+                        "Html":
+                        {
+                            required: "Please enter a Some Content"
+                        }
+
+                    },
+                    submitHandler: function (form) {
+                        let post_url = form.action;
+                        let form_data = $(form).serialize();
+                        $.post(post_url, form_data, function (response) {
+                            Easylearner.HandleResponse(response);
+                            if (response.status === 1) {
+                                closeModal();
+                            }
+                            //setTimeout(function () {
+                            //    swal({
+                            //        title: "Succcess",
+                            //        text: "Setting text inserted successfully",
+                            //        type: "success",
+                            //        confirmButtonText: "OK"
+
+                            //    }).then(function (isConfirm) {
+                            //        if (isConfirm) {
+                            //            window.location.href = "/Home/Index";
+
+                            //        } else {
+                            //            if (typeof noCallback !== "undefined") {
+                            //            }
+                            //        }
+                            //    });
+                            //});
+
+                        });
+                    }
+
+                });
+        $(document).ready(function () {
+            $("#btnregister").attr("disabled", true);
+
+            $("#btnregister").click(function () {
+                if ($("#contexteditor").val() == "") {
+                    $("#btnregister").attr("disabled", true);
+                    $('#HtmlText').removeAttr('hidden');
+                }
+
+            });
+
+            $("#summerNote").mouseout(function () {
+
+                if ($("#contexteditor").val() != "") {
+                    $("#btnregister").attr("disabled", false);
+                }
+
+               
+            });
+             
+            $("#contexteditor").summernote({
+                height: 300,
+                minHeight: null,
+                maxHeight: null,
+                codemirror: {
+                    theme: "monokai"
+                },
+                callbacks: {
+                    onImageUpload: function (files) {
+                        for (var i = 0; i < files.length; i++) {
+
+                            uploadImage(files[i]);
+                        }
+                    }
+                },
+                fontSizes: ['12', '14', '16', '18', '24', '36', '48'],
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']],
+                ],
+            });
+        });
+
+        function uploadImage(file) {
+            var formData = new FormData();
+            formData.append("uploadedFiles", file);
+            $.ajax({
+                data: formData,
+                type: "POST",
+                url: '/Setting/UploadFile',
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (message) {
+                    var imgNode = document.createElement('img');
+                    imgNode.src = "/Uploads/" + message;
+                    $('#contexteditor').summernote('insertNode', imgNode);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+    </script>
+}
+

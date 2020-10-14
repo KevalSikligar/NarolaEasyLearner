@@ -1,0 +1,105 @@
+﻿@{
+    Layout = null;
+}
+
+<form id="frmAssignStudent" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select User name</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" />
+                <div class="form-row mt-0 custom-multiselect">
+                    <div class="form-group col-md-12">
+                        <label for="Name">User name :  <span class="text-danger">*</span></label>
+                        <select name="studentUserId" multiple="multiple" class="multi-select" id="studentUserId" asp-items="@(new SelectList(string.Empty,"Value","Text"))">
+                        </select>
+                        <span id="ErrorMessage" style="color:red;" hidden>This field is required.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Save</button>
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>
+
+<script src="~/js/bootstrap-multiselect.js"></script>
+<link href="~/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/js/jquery.cookie.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+                 $('#studentUserId').multiselect({
+                        includeSelectAllOption: true
+               });
+
+            var url = '@Url.Action("GetUserList", "Message")';
+
+            $.getJSON(url, function (data)
+            {
+                var items = '';
+                $('#studentUserId').empty();
+                $('#studentUserId').multiselect('destroy');
+
+                    $.each(data, function (i, student)
+                    {
+                         items += "<option value='" + student.value + "'>" + student.text + "</option>";
+                    });
+
+                     $('#studentUserId').html(items);
+                    $('#studentUserId').multiselect
+                    ({
+                      includeSelectAllOption: true
+                    });
+            });
+
+
+         var validationresult = $("#frmAssignStudent").validate({
+            rules: {
+                "studentUserId": { required: true }
+            },
+            messages: {
+                "studentUserId": {
+                    required: "Please select User name."
+                }
+            },
+             submitHandler: function (form) {
+                  if ($('#studentUserId option:selected').val() == undefined) {
+                        $('#ErrorMessage').removeAttr('hidden');
+                 }
+                  else {
+                      $("#ErrorMessage").attr("hidden",true);
+                      var selectedText = $('#studentUserId option:selected').toArray().map(item => item.text).join();
+                      var selectedValues = $('#studentUserId option:selected').toArray().map(item => item.value).join();
+                      $.cookie("StudentName", selectedText);
+                      $.cookie("StudentId", selectedValues);
+                      if ($("#UserName").val() != '') {
+                          $("#UserName").val($("#UserName").val() + "," + $.cookie("StudentName"));
+                      }
+                      else {
+                          $("#UserName").val($.cookie("StudentName"));
+                      }
+                      $("#StudentIdList").val($.cookie("StudentId"));
+                      closeModal();
+                      $.removeCookie("StudentName");
+                      $.removeCookie("StudentId");
+                     }
+            }
+        });
+
+    });
+
+
+
+
+</script>

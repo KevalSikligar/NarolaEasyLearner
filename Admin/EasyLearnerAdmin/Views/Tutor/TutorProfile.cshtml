@@ -1,0 +1,88 @@
+﻿@model EasyLearner.Service.Dto.TutorDto
+@{
+    ViewData["Title"] = "TutorProfile";
+}
+
+<h1>TutorProfile</h1>
+
+<form>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" name="Id" id="tid" />
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <label for="TutorName">Name of Tutor  <span class="text-danger">*</span></label>
+            <input type="text" asp-for="TutorName" name="TutorName" class="form-control" readonly/>
+        </div>
+
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <label for="UserName">User name:</label>
+            <input type="text" asp-for="UserName" name="UserName" class="form-control" readonly />
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <h5><b>Status:-</b></h5>
+            @if (Model.IsActive == true)
+            {
+                <label for="IsActive">ActiveTutor</label>
+                <input type="radio" asp-for="IsActive" name="ActiveStatus" value="true" selected><br />
+                <label for="IsInActive">InActiveTutor</label>
+                <input type="radio" asp-for="IsActive" name="ActiveStatus" value="false"><br />
+            }
+            else
+            {
+                <label for="IsActive">ActiveTutor</label>
+                <input type="radio" asp-for="IsActive" name="ActiveStatus" value="true"><br />
+                <label for="IsInActive">InActiveTutor</label>
+                <input type="radio" asp-for="IsActive" name="ActiveStatus" value="false" selected><br />
+            }
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("TutorAccount","Tutor",new { id =Model.Id  })">Tutor Account</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="#">Tutor History</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("ReportOfNumberOfAnswer","Tutor",new { id =Model.Id  })">Report Of Number Of Answer</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("Tutorfilter","Tutor")">Back to list</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts
+{
+    <script>
+        $('input[type=radio][name=ActiveStatus]').change(function (e)
+        {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("EditTutorStatus","Tutor")',
+                data: {
+                    id: $("#tid").val(),
+                    IsActive:$("input[name='ActiveStatus']:checked"). val(),
+                },
+                success: function (response) {
+                    Easylearner.HandleResponse(response);
+                },
+                error: function (result) {
+                    alert('error');
+                }
+            });
+   
+        });
+    </script>
+}

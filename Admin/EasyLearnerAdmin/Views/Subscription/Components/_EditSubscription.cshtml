@@ -1,0 +1,81 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<form id="frmEditSubscription" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">For Edit membership services item please select below and click on button.</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-2">
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label class="radio-inline">
+                            <b>Select</b> <input type="radio" name="radType1" value="Annually"> Annually
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="radType1" value="Monthly"> Monthly
+                        </label>
+                        <span id="radType1Msg" style="color:red;" hidden>Please select membership service</span>
+                    </div>
+                </div>
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label class="radio-inline">
+                            <b>Select</b> <input type="radio" name="radType2" value="Normal"> Normal
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="radType2" value="Plus"> Plus
+                        </label>
+                        <span id="radType2Msg" style="color:red;" hidden>Please select membership service</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" id="btnNextSubscription" class="btn btn-outline-primary con_btn active">Next</button>
+    </div>
+</form>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#btnNextSubscription").click(function () {
+            var radio1Value = $("input[name='radType1']:checked").val();
+            var radio2Value = $("input[name='radType2']:checked").val();
+            if (radio1Value == undefined) {
+                $("#radType1Msg").removeAttr("hidden");
+            }
+            if (radio2Value == undefined) {
+                $("#radType2Msg").removeAttr("hidden");
+            }
+            if (radio1Value != undefined && radio2Value != undefined) {
+                var subscriptionVal = radio1Value + "_and_" + radio2Value;
+                var id = "";
+                if (subscriptionVal == "Annually_and_Normal") {
+                    id = SubscriptionTypes.Annually_and_Normal;
+                }
+                if (subscriptionVal == "Annually_and_Plus") {
+                    id = SubscriptionTypes.Annually_and_Plus;
+                }
+                if (subscriptionVal == "Monthly_and_Normal") {
+                    id = SubscriptionTypes.Monthly_and_Normal;
+                }
+                if (subscriptionVal == "Monthly_and_Plus") {
+                    id = SubscriptionTypes.Monthly_and_Plus;
+                }
+                $("#modalContent").load(`/Subscription/_EditSubscriptionValues/${id}`, function () {
+                    $("#divModal").modal('show');
+                });
+            }
+
+        });
+    });
+
+</script>

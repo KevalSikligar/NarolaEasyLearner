@@ -1,0 +1,31 @@
+[
+  {
+    "outputFileName": "wwwroot/EasyLearnerBundle/EasyLearner.min.css",
+    "inputFiles": [
+      "wwwroot/css/site.css",
+      "wwwroot/css/CustomStyle.css",
+      "wwwroot/lib/bootstrap/dist/css/bootstrap.css",
+      "wwwroot/css/jquery.dataTables.min.css"
+      //"wwwroot/css/jquery-ui.css" 
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/Easylearner.min.js",
+    "inputFiles": [
+      "wwwroot/js/Jqueryv3.5.1.js",
+      "wwwroot/js/jquery.dataTables.min.js",
+      "wwwroot/lib/jquery-validation/dist/jquery.validate.js",
+      "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
+      "wwwroot/js/Popper.min.js",
+      "wwwroot/lib/bootstrap/dist/js/bootstrap.js",
+      "wwwroot/js/dialogs.js",
+      "wwwroot/js/Common.js",
+      "wwwroot/js/jquery-loading-overlay.js",
+      //"wwwroot/js/jquery-ui.js", 
+      //"wwwroot/js/jquery.mask.js",
+      "wwwroot/js/sweetalert.min.js",
+      "wwwroot/js/moment.js"
+
+    ]
+  }
+]

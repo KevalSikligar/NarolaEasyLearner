@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewData["Title"] = "EditStaff";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Find Staff by UserName</h1>
+
+<form id="editStaff" asp-controller="Staff" asp-action="Create" class="form-group">
+    <div class="form-group">
+        <label class="col-form-label">UserName:</label>
+        <input class="form-control col-md-3" type="text" name="UserName" id="UserName" />
+    </div>
+    <div class="form-group">
+        <input class=" btn-info " id="nextBtn" type="submit" value="Next" style="display:none" />
+    </div>
+</form>
+
+
+@section Scripts{
+    <script src="~/js/jquery.mask.js"></script>
+    <script>
+        var validationresult = $("#editStaff").validate({
+            rules: {
+                "UserName": {
+                    required: true,
+                    remote: {
+                        url: "/Staff/CheckUserName",
+                        type: "GET",
+
+                    }
+                }
+            },
+            messages: {
+                "UserName": {
+                    remote: "Username not found.",
+                    required: "Please Enter Username"
+                }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                var userName = $("#UserName").val();
+                window.location.href = `/Staff/Create?UserName=${userName}&isEdit=${true}`;
+                //  $.post(post_url, form_data);
+            }
+        });
+        
+        $('input').on('focusout keyup', function () {
+            if ($('#editStaff').valid()) {
+                $("#nextBtn").show();
+            } else {
+                $("#nextBtn").hide();
+            }
+        });
+    </script>
+
+}
+

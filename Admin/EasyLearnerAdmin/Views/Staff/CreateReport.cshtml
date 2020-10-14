@@ -1,0 +1,140 @@
+﻿@model EasyLearner.Service.Dto.StaffReportDto
+@{
+    ViewData["Title"] = "StaffLog";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+
+<form id="frmStaffLog" method="get">
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <h2>Staff operation report on the company's software</h2>
+        </div>
+        @*<div class="row">
+                <div class="col-sm-2 text-lg-left"><label>From Date  testsetet   <span class="text-danger">*</span></label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="StartDate" value="" name="StartDate" class="form-control datepicker" />
+                </div>
+
+                <div class="col-sm-2 text-lg-left"><label>To Date <span class="text-danger">*</span></label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="EndDate" value="" name="EndDate" class="form-control datepicker" />
+                </div>
+
+
+                <div class="col-sm-2">
+                    <input type="submit" id="btnsubmit" value="Seach" class="btn btn-primary" />
+                </div>
+                <br /><br />
+            </div>*@
+    </div>
+</form>
+<div id="StaffList">
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="dtStaffLog">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name of Staff</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button type="button" onclick="window.history.back();" class="btn btn-info">Back</button>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+        var StaffArray = new Array();
+        $(document).ready(function () {
+            bindStaffTable("#dtStaffLog");
+        });
+          function bindStaffTable(tableId) {
+                if ($.fn.DataTable.isDataTable(tableId)) {
+                    $(tableId).dataTable().fnDestroy();
+                }
+                dynamic = $(tableId).DataTable({
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    bLengthChange: true,
+                    "sAjaxSource": "/Staff/GetStaffOperationReport",
+                    "initComplete": function (settings, json) { },
+                    "rowCallback": function (row, data, index) { },
+                    fnServerParams: function (aoData) {
+                        aoData.push(
+                            { "name": "StartDate", "value":' @Convert.ToDateTime(Model.StartDate).ToString("yyyy/MM/dd") '},
+                            { "name": "EndDate", "value":' @Convert.ToDateTime(Model.EndDate).ToString("yyyy/MM/dd")' },
+                            { "name": "staffId", "value": '@Model.staffId'},
+                        );
+                    },
+                    "language": {
+                        "info": "Showing _START_ to _END_ of _TOTAL_ Staffs",
+                        "sInfoEmpty": "Showing 0 to 0 of 0 Staffs"
+                    },
+                    "columns": [
+                        {
+                            "data": "id",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "name",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "staffDate",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return new Date(data).toLocaleDateString();
+                            }
+                            
+                        },
+                        {
+                            "data": "staffDate",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return moment.utc(data).local().format("LT");
+                            }
+                        },
+                        {
+                            "data": "description",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true
+                        }
+
+                    ]
+                });
+
+            }
+    </script>
+}
+
+
+
+
+
+

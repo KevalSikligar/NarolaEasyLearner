@@ -1,0 +1,172 @@
+﻿@model EasyLearner.Service.Dto.QADto
+
+@{
+    ViewData["Title"] = "ViewQAReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<center><h1>Report of Questions & Answers</h1> </center>
+<input type="hidden" value="@Model.FromDate" id="FromDate">
+<input type="hidden" value="@Model.ToDate" id="ToDate">
+<input type="hidden" value="@Model.GradeList" id="GradeList">
+<input type="hidden" value="@Model.ansSlectionType" id="ansSlectionType">
+
+<div id="ViewQAReport">
+    <div style="margin-top:10px;margin-bottom:10px;">
+    </div>
+    <div>
+        <table id="QAReport">
+            <thead>
+                <tr>
+                    <th>Date of Answer</th>
+                    <th>Time of Answer</th>
+                    <th>Grade</th>
+                    <th>Lesson</th>
+                    <th id="tutorColumn">Tutor </th>
+                    <th>View</th>    
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<center>
+
+    <a class="btn btn-info" href="/QA/Index/">Back to Create Report</a>
+        
+</center>
+
+@section Scripts
+{
+    <script>
+
+        $(document).ready(function () {
+            tableId = "#QAReport";
+            bindQATable(tableId);
+        });
+
+        function bindQATable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/QA/GetViewQAReport",
+                "initComplete": function (settings, json) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    $.each(json.aaData, function (key, element) {
+                        if (element.tutorName === "" || element.tutorName === undefined || element.tutorName === null) {
+                            api.columns(1).visible(false);
+                            $("#tutorColumn").hide();
+                        } else {
+                            api.columns(1).visible(true);
+                            $("#tutorColumn").show();
+                        }
+                    });
+
+                },
+
+                "rowCallback": function (row, data, index) {
+
+                },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Q & A",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Q & A"
+                },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "gradeList", "value": $("#GradeList").val() },
+                        { "name": "fromDate", "value": $("#FromDate").val() },
+                        { "name": "toDate", "value": $("#ToDate").val() },
+                        { "name": "ansSlectionType", "value": $("#ansSlectionType").val() },
+
+                    );
+                },
+                "columns":
+                    [
+
+                        {
+                            "data": "dateOfAns",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+
+                                return moment(data).format("DD-MMM YY ");
+                            }
+                        },
+                        {
+                            "data": "timeOfAns",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                                //return moment(data).format("DD-MMM YY ");
+                            }
+                        },
+
+
+                        {
+                            "data": "grade",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "lessonName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "tutorName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        },
+                        {
+                            "data": "questionRequestId",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                var content = `<input type="checkbox" data-requestId="${data}" class="ViewQuestion" data-responseId="${row.questionResponseId}" />`;
+                                return content;
+                            }
+                        }
+
+
+                    ]
+            });
+
+        }
+
+        $(document).on("click", ".ViewQuestion", function () {
+            
+            var qRequestId = $(this).attr("data-requestId");
+            var qResponseId = $(this).attr("data-responseId");
+            if ($(this).prop("checked"))
+               _ViewQAInfo(qRequestId, qResponseId);
+        })
+
+        function _ViewQAInfo(qRequestId, qResponseId) {
+
+            $("#modalContent").load(`/QA/_ViewQAInfo?q=${qRequestId}&r=${qResponseId}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+    </script>
+}

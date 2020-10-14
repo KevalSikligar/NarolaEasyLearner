@@ -1,0 +1,171 @@
+﻿@using EasyLearnerAdmin.Utility.Common;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="finance-main-section">
+    <div class="row">
+        <!-- Student Section -->
+        <div class="col-md-4 col-sm-12" id="fnstudent">
+            <div class="section-one">
+                <h4 class="font-weight-bold">Student</h4>
+                <div class="section-list">
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="student">@ResponseConstants.ReportFromMembership</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Tutor Section -->
+        <div class="col-md-4 col-sm-12" id="fntutor">
+            <div class="section-one">
+                <h4 class="font-weight-bold">Tutor</h4>
+                <div class="section-list">
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="tutor">@ResponseConstants.PaymentRegistartion</div>
+                        </div>
+                    </div>
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="tutorPayment">@ResponseConstants.ReportPaymentHistory</div>
+                        </div>
+                    </div>
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="allTutorPayment">@ResponseConstants.ReportTotalPaymentToTutor</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- staff section -->
+        <div class="col-md-4 col-sm-12">
+            <div class="section-one">
+                <h4 class="font-weight-bold">Staff</h4>
+                <div class="section-list">
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="staff">@ResponseConstants.PaymentRegistartion</div>
+                        </div>
+                    </div>
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="staffPayment">@ResponseConstants.ReportPaymentHistory</div>
+                        </div>
+                    </div>
+                    <div class="section-item">
+                        <div class="custom-circle">
+                            <div class="circle-desc" data-name="allstaffPayment">@ResponseConstants.ReportTotalPaymentToStaff</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@*<div id="fnstudent">
+        <div> Student</div>
+        <div class="vl"></div>
+
+        <div class="circle c1" data-name="student">@ResponseConstants.ReportFromMembership</div>
+
+    </div>
+    <div id="fntutor" style="position: relative;bottom: 74px;">
+        <div style="position: relative;left: 260px; top: 28px;">Tutor</div>
+        <div class="v2"></div>
+
+        <div class="circle c2" data-name="tutor">@ResponseConstants.PaymentRegistartion</div>
+        <div class="v2"></div>
+        <div class="circle c2" data-name="tutorPayment">@ResponseConstants.ReportPaymentHistory</div>
+        <div class="v2"></div>
+        <div class="circle c2" data-name="allTutorPayment">@ResponseConstants.ReportTotalPaymentToTutor</div>
+    </div>
+
+
+    <div id="fnstaff" style="position: relative;bottom: 70px;">
+        <div style="position: relative;left: 467px; bottom: 685px;">Staff</div>
+        <div class="v3"></div>
+
+        <div class="circle c3" data-name="staff">@ResponseConstants.PaymentRegistartion</div>
+        <div class="v3"></div>
+        <div class="circle c3" data-name="staffPayment">@ResponseConstants.ReportPaymentHistory</div>
+        <div class="v3"></div>
+        <div class="circle c3" data-name="allstaffPayment">@ResponseConstants.ReportTotalPaymentToStaff</div>
+    </div>*@
+@section Scripts{
+
+
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script>
+        $(".circle-desc").on("click", function () {
+            var model = $(this).data("name");
+            var model = $(this).data("name");
+            if (model === "student") {
+                $("#modalContent").load(`/Financial/_CreateReport/`, function () {
+                    $("#divModal").modal('show');
+                });
+            }
+            if (model === "tutor") {
+                $("#modalContent").load(`/Financial/_TutorPaymentRegister/`, function () {
+                    $("#divModal").modal('show');
+                });
+            }
+            //  if (model === "tutorPayment") {
+            //        $("#modalContent").load(`/Financial/_TutorPaymentHistory/?AllTutor=false`, function () {
+            //        $("#divModal").modal('show');
+            //    });
+            //}
+
+            if (model === "tutorPayment") {
+                window.location.href = `/Financial/ViewPaymentHistory?AllTutor=false`;
+            }
+            if (model === "allTutorPayment") {
+                window.location.href = `/Financial/ViewPaymentHistory?AllTutor=true`;
+            }
+
+            //if (model === "allTutorPayment") {
+            //    $("#modalContent").load(`/Financial/_TutorPaymentHistory?AllTutor=true`, function () {
+            //        $("#divModal").modal('show');
+            //    });
+            //}
+
+
+
+            if (model === "staff") {
+                $("#modalContent").load(`/Financial/_StaffPaymentRegister/`, function () {
+                    $("#divModal").modal('show');
+                });
+            }
+            //if (model === "staffPayment") {
+            //    $("#modalContent").load(`/Financial/_StaffPaymentHistory/?AllTutor=false`, function () {
+            //        $("#divModal").modal('show');
+            //    });
+            //}
+
+            if (model === "staffPayment") {
+                window.location.href = `/Financial/ViewStaffPaymentHistory?AllStaff=false`;
+            }
+
+
+            //if (model === "allstaffPayment") {
+            //    $("#modalContent").load(`/Financial/_StaffPaymentHistory?AllTutor=true`, function () {
+            //        $("#divModal").modal('show');
+            //    });
+            //}
+
+            if (model === "allstaffPayment") {
+                window.location.href = `/Financial/ViewStaffPaymentHistory?AllStaff=true`;
+            }
+
+        });
+    </script>
+}
+

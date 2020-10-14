@@ -1,0 +1,138 @@
+﻿@model EasyLearner.Service.Dto.TutorFilterLessionWiseAnswerDto
+@{
+    ViewData["Title"] = "ReportOfNumberOfAnswer";
+}
+
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<center><h4>Date Of Report OF Number Of Answer By Tutor</h4></center>
+<br />
+<br />
+<form id="frmtutorfilter" method="get">
+    <div class="row">
+        <input type="hidden" asp-for="Tid" id="Tid" value="@ViewBag.Id" />
+        <h5><b>Please specify time interval of the requested Report :-</b></h5>
+
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <label>From Date <span class="text-danger">*</span></label>
+
+            <input type="text" asp-for="FromDate" id="FromDate" value="" name="FromDate" class="form-control" />
+        </div>
+        <div class="col-md-3 form-group">
+            <label>To Date <span class="text-danger">*</span></label>
+
+            <input type="text" asp-for="ToDate" id="ToDate" value="" name="ToDate" class="form-control" />
+
+        </div>
+        <div class="col-md-3 form-group">
+            <label></label>
+            <input id="btnsubmit" value="Search" class="btn btn-primary " style="    position: relative;    top: 30px;" />
+        </div>
+    </div>
+    
+    <br /><br />
+
+</form>
+
+<div id="tutorlistlessionwiseAnswer">
+    
+    <div>
+        <table id="dtTutor">
+            <thead>
+                <tr>
+                    <th>Relevent-Lesson</th>
+                    <th>NumberOfAnswer</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script>
+       
+        $(document).ready(function () {
+
+            $("#tutorlistlessionwiseAnswer").hide();
+
+            $("#btnsubmit").attr("disabled", false);
+
+            $('#FromDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+            $('#ToDate').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+            $("#btnsubmit").click(function () {
+                $("#tutorlistlessionwiseAnswer").show();
+                tableId = "#dtTutor";
+                bindTutorTable(tableId);
+
+            });
+            var tableId = "";
+            var TutorArray = new Array();
+
+
+            function bindTutorTable(tableId) {
+                if ($.fn.DataTable.isDataTable(tableId)) {
+                    $(tableId).dataTable().fnDestroy();
+                }
+                dynamic = $(tableId).DataTable({
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    bLengthChange: true,
+                    "sAjaxSource": "/Tutor/GetCountWiseTutorReport",
+                    "initComplete": function (settings, json) { },
+                    "rowCallback": function (row, data, index) { },
+                    fnServerParams: function (aoData) {
+                        aoData.push(
+                            { "name": "tid", "value": $("#Tid").val() },
+                            { "name": "fromDate", "value": $("#FromDate").val() },
+                            { "name": "toDate", "value": $("#ToDate").val() },
+                        );
+                    },
+                    "language": {
+                        "info": "Showing _START_ to _END_ of _TOTAL_ Tutors",
+                        "sInfoEmpty": "Showing 0 to 0 of 0 Tutors"
+                    },
+                    "columns": [
+                        {
+                            "data": "lessonName",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                            "render": function (data, type, row) {
+                                return data;
+                            }
+                        }, {
+                            "data": "numberOfAnswer",
+                            "autoWidth": true,
+                            "searchable": true,
+                            "orderable": true,
+                             "render": function (data, type, row) {
+                                return data;
+                            }
+                        }
+                    ]
+                });
+            }
+        });
+    </script>
+}
+
+
+

@@ -1,0 +1,185 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddEditStudent(0)" class="btn btn-primary">Create Student</button>
+        <button type="button" onclick="DeleteStudents()" class="btn btn-danger">Delete Student</button>
+    </div>
+    <div>
+        <table id="dtStudent">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Student Name</th>
+                    <th>Payment Amount</th>
+                    <th>Student Status</th>
+                    <th>Subscription</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var tableId = "";
+        var StudentArray = new Array();
+
+        $(document).ready(function () {
+            tableId = "#dtStudent";
+            bindStudentTable(tableId);
+        });
+
+        function AddEditStudent(id) {
+            $("#modalContent").load(`/Student/_AddEditStudent/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function bindStudentTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Student/GetStudentList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[0, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Students",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Students"
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            var element = `<input type="checkbox" class="StudentCheckbox" id="${data}"/>`;
+                            return element;
+                        }
+                    },
+                    {
+                        "data": "studentName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                         "render": function (data, type, row) {
+                            var content = "";
+                            content = content + `<a href="javascript:;" onclick=AddEditStudent(${row.id},false) class="dropdown-item action"><i class="fa fa-trash" aria-hidden="true"></i> Edit Student</a>`;
+                            //content = content + `<a href="javascript:;" onclick=DeleteStudents(${row.id},true) class=" dropdown-item action"><i class="fa fa-eye" aria-hidden="true"></i> Delete Student</a>`;
+                            return dataTableAction(content, data);
+                        }
+                    },
+                      {
+                        "data": "paymentAmount",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                     {
+                        "data": "studentStatus",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                     {
+                        "data": "subscription",
+                        "autoWidth": true,
+                        "searchable": true,
+                         "orderable": true,
+                         "render": function (data, type, row) {
+                            var content = "";
+                            if (row.subscription == 'AN') {
+                                content = 'Annually/Normal';
+                            }
+                            if (row.subscription == 'AP') {
+                                content = 'Annually/Plus';
+                            }
+                             if (row.subscription == 'MN') {
+                                content = 'Monthly/Normal';
+                            }
+                             if (row.subscription == 'MP') {
+                                content = 'Monthly/Plus';
+                            }
+                            return content;
+                        }
+                    },
+                       {
+                        "data": "gradeName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                    },
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "className": "admin_toggle",
+                         "render": function (data, type, row) {
+                            return statusToggle(row.id, data);
+                        }
+                    }
+                ]
+            });
+             $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Student/ManageStudentIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+        }
+
+        function DeleteStudents() {
+            if (StudentArray.length === 0) {
+                alert("Please select atleast one student !");
+            }
+
+   
+            Easylearner.Confirm("Delete Student", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, delete it!", function () {
+                $.ajax({
+                    url: "/Student/RemoveStudents",
+                    data: { id: StudentArray },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                        bindStudentTable(tableId);
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            );
+  
+        }
+        $(document).on("change", ".StudentCheckbox", function () {
+            if ($(this).prop("checked") == true) {
+                StudentArray.push(parseInt($(this).attr('id')));
+            }
+            if ($(this).prop("checked") == false) {
+                arrayRemove(StudentArray, parseInt($(this).attr('id')));
+            }
+
+        })
+    </script>
+
+}

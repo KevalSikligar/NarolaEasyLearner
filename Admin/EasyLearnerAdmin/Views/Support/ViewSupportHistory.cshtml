@@ -1,0 +1,110 @@
+﻿
+@{
+    ViewData["Title"] = "ViewSupportHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <h1>Support History Report </h1>
+        <input type="hidden" id="RequestId" value="@Model" />
+    </div>
+
+    <div>
+        <table id="dtSupportHistory">
+            <thead>
+                <tr>
+                    <th>Date & Time Of Request Support </th>
+                    <th>Subject of Support Request</th>
+                    <th>Description of request support</th>
+                    <th>Date and time of response support</th>
+                    <th>Subject of response support</th>
+                    <th>Description of response support</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+<button class="btn btn-info" onclick="window.history.back()">Back</button> 
+</div>
+@section Scripts{
+    <script>
+        var TableId;
+        $(document).ready(function () {
+            TableId = "#dtSupportHistory";
+            bindGradeTable(TableId);
+        });
+        function bindGradeTable(tableId) {
+
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Support/GetSupportHistoryList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                fnServerParams: function (aoData) {
+                    aoData.push(
+                        { "name": "requestId", "value": $("#RequestId").val() },
+                    );
+                },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Support Responses",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Support Responses"
+                },
+              
+                "columns": [
+                    {
+                        "data": "requestDateTime",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return moment.utc(data).local().format("M-DD-YYYY LT");
+                        }
+                    },
+                    {
+                        "data": "subjectOfRequest",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "requestDescription",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "responseDateTime",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return moment.utc(data).local().format("M-DD-YYYY LT");
+                        }
+                    },
+                    {
+                        "data": "subjectOfResponse",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false
+                    },
+                    {
+                        "data": "responseDescription",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false
+                    }
+                ]
+            });
+
+        }
+
+    </script>
+}
+
+

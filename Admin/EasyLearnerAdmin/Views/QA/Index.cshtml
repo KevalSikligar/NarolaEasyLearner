@@ -1,0 +1,184 @@
+﻿@model EasyLearner.Service.Dto.QADto
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<center><h1>Report of Questions & Answers</h1> </center>
+
+
+<form id="frmQA" asp-action="ViewQAReport" asp-controller="QA" method="post">
+
+    @Html.AntiForgeryToken()
+
+    @*<div class="form-group col-md-6">
+            <label>Major &  Grade <span class="text-danger">*</span></label>
+            <select name="GradeId" id="GradeId" asp-for="@Model.GradeId" class="form-control" asp-items="@ViewBag.GradeList">
+                <option value="">--Select Grade--</option>
+            </select>
+        </div>*@
+    <input type="hidden" asp-for="ansSlectionType"/>
+    <div class="form-group col-md-6 custom-multiselect">
+        <label for="Name">Choose Major & Grade <span class="text-danger">*</span> :</label>
+        <select name="GradeId" asp-for="GradeId"  multiple="multiple" class="multi-select" id="GradeId" asp-items="@ViewBag.GradeList">
+        </select>
+       
+            <input type="text" name="GradeList" asp-for="GradeList" id="GradeList" hidden />
+            <span id="ErrorMessage" style="color:red;" hidden>Please Select Grades</span>
+    </div>
+    <div class="form-group col-md-6">
+        <label for="FromDate">From Date  <span class="text-danger">*</span></label>
+
+        <input type="text" asp-for="FromDate" name="FromDate" class="form-control" />
+    </div>
+    <div class="form-group col-md-6">
+        <label for="ToDate">To Date  <span class="text-danger">*</span></label>
+        <input type="text" asp-for="ToDate" name="ToDate" class="form-control" required />
+    </div>
+    <div class="form-group col-md-6">
+        <label>
+            <input type="checkbox" asp-for="AnsweredQuestion" name="AnsweredQuestion" value="AnsweredQuestion"  />
+            Report of answerable questions
+        </label>
+    </div>
+    <div class="form-group col-md-6">
+        <label>
+            <input type="checkbox" asp-for="UnAnsweredQuestion" name="UnAnsweredQuestion" value="UnAnsweredQuestion"  />
+            Report of Unanswerable questions
+        </label>
+    </div>
+
+    <input type="submit" id="btnSaveQA" value="Create Report" class="btn btn-primary" />
+</form>
+@section Scripts{
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/bootstrap-multiselect.js"></script>
+    <link href="~/css/bootstrap-multiselect.css" rel="stylesheet" />
+    <script>
+        $('#FromDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        $('#ToDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+
+        $('#GradeId').multiselect({
+            includeSelectAllOption: true
+        });
+
+        $('#GradeId').change(function () {
+            var data = $(this).val();
+            $("#GradeList").val(data);
+        });
+
+        $(document).ready(function () {
+            $("#btnSaveQA").attr("disabled", "disabled");
+        });
+
+
+        $(document).on('change', '[type="checkbox"]', function () {
+
+            if ($("#AnsweredQuestion").prop("checked") == true || $("#UnAnsweredQuestion").prop("checked") == true) {
+                $("#btnSaveQA").removeAttr("disabled");
+            }
+            else {
+                $("#btnSaveQA").attr("disabled", "disabled");
+            }
+            if ($("#AnsweredQuestion").prop("checked") == true) {
+                $("#ansSlectionType").val(1);
+            }
+            if ($("#UnAnsweredQuestion").prop("checked") == true) {
+                $("#ansSlectionType").val(2);
+            }
+
+            if ($("#AnsweredQuestion").prop("checked") == true && $("#UnAnsweredQuestion").prop("checked") == true) {
+                $("#ansSlectionType").val(3);
+            }
+            
+        });
+
+
+        var validationresult = $("#frmQA").validate({
+            rules: {
+               
+                "GradeId": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "FromDate": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    } },
+                "ToDate": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    } }
+            },
+            messages: {
+               
+                "GradeId": {
+                    required: "Please select Grade"
+                },
+                "FromDate": {
+                    required: "Please select FromDate"
+                },
+                "ToDate": {
+                    required: "Please select ToDate"
+                }
+            }
+        });
+
+                //$('#btnSaveQA').click(function (form) {
+                //    if ($("#frmQA").valid() == true) {
+                //        $("#btnSaveQA").removeAttr("disabled");
+
+                //        let ToDate = $("#ToDate").val();
+                //        let FromDate = $("#FromDate").val();
+                //        var GradeId = $("#GradeId").val();
+
+                //        $("#FromDate").val(ToDate);
+                //        $("#ToDate").val(FromDate);
+                //        $("#GradeId").val(GradeId);
+
+                //        var AnsweredQuestion = $("input[name='AnsweredQuestion']:checked").val();
+                //        var model = { ToDate: ToDate, FromDate: FromDate, GradeId: GradeId, AnsweredQuestion: AnsweredQuestion };
+                //        window.location.href = `/QA/ViewQAReport?FromDate=${FromDate}&ToDate=${ToDate}&GradeId=${GradeId}&AnsweredQuestion=${AnsweredQuestion}`;
+                //    }
+                //    else {
+                        
+                //        $("#btnSaveQA").attr("disabled", "disabled");
+                //    }
+
+                //    //$.ajax({
+                //    //        url: "/QA/ViewQAReport",
+                //    //        type: "POST",
+                //    //         data: { model:model },
+                //    //        success: function (response) {
+                //    //            console.log(response);
+
+
+                //    //    },
+                //    //    error: function (response) {
+
+                //    //    }
+
+                //    //    });
+
+
+
+                //});
+
+    </script>
+
+}

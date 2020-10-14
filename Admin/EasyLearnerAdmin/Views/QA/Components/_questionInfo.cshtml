@@ -1,0 +1,51 @@
+﻿@model EasyLearner.Service.Dto.ExamDto
+@{
+    Layout = null;
+}
+
+<form id="frmExam" asp-action="AddExam" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">View Question and Answers</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" name="Id" />
+                <div class="form-row mt-0">
+
+                    <div class="form-group col-md-12">
+                        <label for="QuestionDescription">The Question  <span class="text-danger">*</span></label>
+                        <input type="text" asp-for="QuestionDescription" disabled name="QuestionDescription" class="form-control" />
+                    </div>
+                    <div class="form-group col-md-12">
+                        <center> <img src="~/images/Logo.PNG" style="width:100px" /></center>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="SubjectName">Subject of Answere :<b> @Model.SubjectName </b></label>
+
+
+                    </div>
+                    <div class="form-group col-md-12">
+                        <center> <img src="~/images/Logo.PNG"  style="width:100px"/></center>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="ResponseDescription">Descriptive Answere  <span class="text-danger">*</span></label>
+                        <input type="text" asp-for="ResponseDescription" disabled name="ResponseDescription" class="form-control" />
+                    </div>
+
+
+                </div>
+
+                </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        @*<button type="submit" class="btn btn-outline-primary con_btn active">Save</button>*@
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>

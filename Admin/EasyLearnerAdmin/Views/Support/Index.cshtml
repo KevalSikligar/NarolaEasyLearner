@@ -1,0 +1,106 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <h1>Support Report </h1>
+    </div>
+
+    <div>
+        <table id="dtSupport">
+            <thead>
+                <tr>
+                    <th>DateOfSend</th>
+                    <th>TimeOfSend</th>
+                    <th>Student UserName</th>
+                    <th>Subject of Support</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+<script>
+    var TableId;
+    $(document).ready(function () {
+        TableId = "#dtSupport";
+        bindGradeTable(TableId);
+    });
+    function bindGradeTable(tableId) {
+
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Support/GetSupportList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Support",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Support"
+                },
+                "columns": [
+                    {
+                        "data": "dateOfSend",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                         "render": function (data, type, row) {
+                             return moment(data).format("M-DD-YYYY");
+                            }
+                    },
+                    {
+                        "data": "timeOfSend",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return moment.utc(row.dateOfSend).local().format("LT");
+                        }
+                    },
+                    {
+                        "data": "studentUserName",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "subjectOfSupport",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true
+                    },
+                    {
+                        "data": "requestId",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "render": function (data, type, row) {
+                            var element = `<button class="btn btn-info" data-id="${data}" onClick="ViewSupport(${data})" >View</button>`;  
+                            return element;
+                        }       
+                    }
+                ]
+            });
+
+        }
+
+  
+    function ViewSupport(requestId) {
+            $("#modalContent").load(`/Support/_ViewSupportReport?requestId=${requestId}`, function () {
+                $("#divModal").modal('show');
+            });
+
+        }
+
+</script>
+}
+

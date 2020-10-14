@@ -1,0 +1,108 @@
+﻿@model EasyLearner.Service.Dto.PaymentHistoryDto
+@{
+    Layout = null;
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<form id="frmStaffPaymentHistory" asp-action="ViewStaffPaymentHistory" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Report Payment History for Staff</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                <div class="form-row mt-0">
+
+                    <div class="form-group col-md-6">
+                        <label for="FromDate">From Date  <span class="text-danger">*</span></label>
+
+                        <input type="text" asp-for="FromDate" name="FromDate" class="form-control" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="ToDate">To Date  <span class="text-danger">*</span></label>
+                        <input type="text" asp-for="ToDate" name="ToDate" class="form-control" />
+                    </div>
+                    @if (!Model.AllStaff)
+                    {
+                        <div class="form-group col-md-6">
+                            <label>Please type the Username of Staff  <span class="text-danger">*</span></label>
+                            <input type="text" asp-for="StaffName" name="StaffName" id="StaffName" class="form-control" />
+                            @*<select name="StaffId" id="StaffId" asp-for="@Model.StaffId" class="form-control" asp-items="@ViewBag.StaffList">
+                                    <option value="">--Select Staff--</option>
+                                </select>*@
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Create Report</button>
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>
+<script src="~/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#FromDate').val("");
+        $('#ToDate').val("");
+        $('#FromDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        $('#ToDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+        });
+        var validationresult = $("#frmStaffPaymentHistory").validate({
+            rules: {
+                "FromDate": { required: true },
+                "ToDate": { required: true },
+                "StaffName": {
+                    required: true,
+                    remote: {
+                        url: "/Financial/CheckStaffUserName",
+                        type: "GET"
+                    }
+                }
+
+            },
+
+            messages: {
+                "FromDate": {
+                    required: "Please select date"
+                },
+                "ToDate": {
+                    required: "Please select date"
+                },
+                "StaffName": {
+                     remote: "Username not found.",
+                    required: "Please Type Username of Staff"
+                }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                var ToDate = $("#ToDate").val();
+                var FromDate = $("#FromDate").val();
+                var StaffId = $("#StaffName").val();
+                $.post(post_url, form_data, function (response) {
+                    window.location.href = `/Financial/ViewStaffPaymentHistory?FromDate=${FromDate}&ToDate=${ToDate}&StaffName=${StaffId}`;
+                });
+            }
+
+        });
+    });
+</script>

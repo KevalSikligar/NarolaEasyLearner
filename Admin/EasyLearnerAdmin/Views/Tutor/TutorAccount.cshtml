@@ -1,0 +1,100 @@
+﻿@model EasyLearner.Service.Dto.TutorDto
+@{
+    ViewData["Title"] = "TutorAccount";
+}
+<h1>TutorAccount</h1>
+<form>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" name="Id" id="tid" />
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <label for="UserName">User name:</label>
+            <input type="text" asp-for="UserName" name="UserName" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <label for="TutorName">Name of Tutor  <span class="text-danger">*</span></label>
+            <input type="text" asp-for="TutorName" name="TutorName" class="form-control" />
+            <button type="button" class="btn btn-primary" id="btnEditTutorName" name="btnEditTutorName">Edit</button>
+        </div>
+
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-10">
+            <label for="MobileNo">Mobile no of Tutor</label>
+            <input type="text" class="form-control" aria-label="mobileNo" asp-for="MobileNo" aria-describedby="basic-addon1">
+            <button type="button" class="btn btn-primary" id="btnEditTutorMoNumber">Edit</button>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-12">
+            <a href="#" onclick="EditLesson();">
+                Relevant Lesson </a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="#" onclick="EditPassword();">Password</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("Tutorfilter","Tutor")">Back to list</a>
+        </div>
+    </div>
+
+</form>
+
+
+@section Scripts{
+ <script src="~/js/jquery.mask.js"></script>
+@*<script src="~/js/bootstrap-multiselect.js"></script>
+<link href="~/css/bootstrap-multiselect.css" rel="stylesheet" />*@
+
+    <script type="text/javascript">
+
+        function EditPassword()
+        {
+            $("#modalContent").load(`/Tutor/_EditPassword/${@Model.Id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function EditLesson()
+        {
+            $("#modalContent").load(`/Tutor/_EditLesson/${@Model.Id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+        $(document).on("click", "#btnEditTutorName", function () {
+            $.ajax({
+                url: "/Tutor/EditTutorName",
+                data: { id: $("#tid").val(), TutorName: $("#TutorName").val() },
+                type: "POST",
+                success: function (response) {Easylearner.HandleResponse(response); },
+                error: function (response) {Easylearner.HandleResponse(response); },
+            });
+        });
+
+        $(document).on("click", "#btnEditTutorMoNumber", function ()
+        {
+            $.ajax({
+                url: "/Tutor/EditTutorMoNumber",
+                data: {
+                        id: $("#tid").val(),
+                        Monumber: $("#MobileNo").val()
+                },
+                type: "POST",
+                success: function (response) {Easylearner.HandleResponse(response); },
+                error: function (response) {Easylearner.HandleResponse(response); },
+            });
+        });
+
+        $(document).ready(function ()
+        {
+            $('input[name="MobileNo"]').mask('00000000000');
+        });
+    </script>
+    }

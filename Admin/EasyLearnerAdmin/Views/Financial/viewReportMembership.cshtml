@@ -1,0 +1,73 @@
+﻿@model EasyLearner.Service.Dto.FinancialDto
+@using EasyLearner.Service.Enums
+@{
+    ViewData["Title"] = "viewReportMembership";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Report the amount received for membership</h3>
+<br />
+<center><p>From Date:@Model.FromDate.ToString("dd-MM-yy")  to To date:@Model.ToDate.ToString("dd-MM-yy")</p></center>
+<hr />
+<center>
+    @foreach (var item in Model.ViewReportList)
+    {
+        int x = (int)Enum.Parse(typeof(GlobalEnums.MemberShipTypes), Enum.GetName(typeof(GlobalEnums.MemberShipTypes), item.MemberShipTypes));
+        if (x == 1)
+        {
+            <div>
+
+                @if (GlobalEnums.MemberShipTypes.Annual_and_Normal.ToString() == "Annual_and_Normal")
+                {
+                    <p>
+                        Annually-Normal Subscription <b>(@item.totalPerson)</b> Persons<br />
+                        Total Amount Paid <b>(@item.totalAmount)</b>
+                    </p>
+                }
+
+
+            </div>
+        }
+        else if (x == 2)
+        {
+            <div>
+
+                @if (GlobalEnums.MemberShipTypes.Annual_and_Plus.ToString() == "Annual_and_Plus")
+                {
+                    <p>
+                        Annually-Plus Subscription <b>(@item.totalPerson)</b> Persons<br />
+                        Total Amount Paid <b>(@item.totalAmount)</b>
+                    </p>
+                }
+
+            </div>
+        }
+        else if (x == 3)
+        {
+            <div>
+
+                @if (GlobalEnums.MemberShipTypes.Monthly_and_Normal.ToString() == "Monthly_and_Normal")
+                {
+                    <p>
+                        Monthly-Normal Subscription <b>(@item.totalPerson)</b> Persons<br />
+                        Total Amount Paid <b>(@item.totalAmount)</b>
+                    </p>
+                }
+
+            </div>
+        }
+        else if (x == 4)
+        {
+
+            @if (GlobalEnums.MemberShipTypes.Monthly_and_Plus.ToString() == "Monthly_and_Plus")
+            {
+                <p>
+                    Monthly-Plus Subscription <b>(@item.totalPerson)</b> Persons<br />
+                    Total Amount Paid <b>(@item.totalAmount)</b>
+                </p>
+            }
+        }
+
+    }
+    <a href="/Financial/Index/">Back to report</a>
+</center>

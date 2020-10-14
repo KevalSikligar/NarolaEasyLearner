@@ -1,0 +1,110 @@
+﻿
+@model EasyLearner.Service.Dto.PaymentDto
+@{
+    Layout = null;
+}
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<form id="frmStaffPaymentReg" asp-action="StaffPaymentRegister" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Payment Registartion for Staff</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                @*<input type="hidden" asp-for="Id" name="Id" />*@
+                <div class="form-row mt-0">
+
+                    <div class="form-group col-md-6">
+                        <label>Name of Staff  <span class="text-danger">*</span></label>
+                        <input type="text" asp-for="StaffName"  name="StaffName" class="form-control"  id="StaffName" />
+                        @*<select name="StaffId" id="StaffId" asp-for="@Model.StaffId" class="form-control" asp-items="@ViewBag.StaffList">
+                                <option value="">--Select Staff--</option>
+                            </select>*@
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Username of Staff</label>
+                        <input type="text" class="form-control" id="username" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Date of Payment<span class="text-danger">*</span></label>
+                        <input type="text" asp-for="PaymentDate" class="form-control" name="PaymentDate" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Amount of Payment<span class="text-danger">*</span></label>
+                        <input type="number" asp-for="Amount" class="form-control" name="Amount" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Description</label>
+                        <textarea asp-for="Description" class="form-control" name="Description"></textarea>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnSave" class="btn btn-outline-primary con_btn active">Register</button>
+        <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+    </div>
+</form>
+<script src="~/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#PaymentDate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            format: "yyyy/mm/dd",
+            language: "tr"
+
+        });
+        $('#StaffId').change(function () {
+            var id = $('#StaffId').val();
+            if (id != null || id != undefined) {
+                $.post("/Financial/GetUserNameByStaffId", { id: id }, function (response) {
+                    $('#username').val(response);
+                });
+            }
+        });
+        var validationresult = $("#frmStaffPaymentReg").validate({
+            rules: {
+                "PaymentDate": { required: true },
+                "Amount": { required: true },
+                "StaffName": { required: true }
+            },
+
+            messages: {
+                "PaymentDate": {
+                    required: "Please select date"
+                },
+                "Amount": {
+                    required: "Please enter amount"
+                },
+                "StaffName": {
+                    required: "Please enter Staff"
+                }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    Easylearner.HandleResponse(response);
+                    if (response.status === 1) {
+                        closeModal();
+
+
+                    }
+                });
+
+            }
+
+        });
+    });
+
+</script>

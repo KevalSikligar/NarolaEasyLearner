@@ -1,0 +1,140 @@
+﻿@model EasyLearner.Service.Dto.SubscriptionTypeDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<form id="frmSubscription" asp-action="AddEditSubscription" asp-controller="Subscription" method="post">
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel"> Define membership items.</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="accordian-block border-0">
+        <div class="accordian-para acc-show p-2">
+
+              @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" name="Id" />
+            <input type="hidden" asp-for="TypeId" name="TypeId" />
+          
+            <div class="form-row mt-0">
+                <div class="form-group col-md-12">
+                    <label class="radio-inline">
+                        <b>Select</b> <input type="radio" name="radSubscriptionType1" value="Annually"> Annually
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="radSubscriptionType1" value="Monthly"> Monthly
+                    </label>
+                </div>
+            </div>
+            <div class="form-row mt-0">
+                <div class="form-group col-md-12">
+                    <label class="radio-inline">
+                        <b>Select</b> <input type="radio" name="radSubscriptionType2" value="Normal"> Normal
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="radSubscriptionType2" value="Plus"> Plus
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-row mt-0">
+                <div class="form-group col-md-12">
+                    <label for="AllowedQuestion">Number of questions allowed :</label>
+                    <input type="text" asp-for="AllowedQuestion" name="AllowedQuestion" id="AllowedQuestion" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row mt-0">
+                <div class="form-group col-md-12">
+                    <label for="Duration">Number of day's allowed:</label>
+                    <input type="number" asp-for="AllowedDays" name="AllowedDays" id="AllowedDays" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row mt-0">
+                <div class="form-group col-md-12">
+                    <label for="Price">Price of membership services</label>
+                    <input type="text" asp-for="Price" name="Price" id="Price" class="form-control" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="submit" id="btnSubscription" class="btn btn-outline-primary con_btn active">Register model of membership</button>
+    <button type="button" class="btn btn-outline-primary con_btn mr-auto" data-dismiss="modal">Close</button>
+</div>
+</form>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var validationresult = $("#frmSubscription").validate({
+            rules: {
+                "radSubscriptionType1": { required: true },
+                "radSubscriptionType2": { required: true },
+                "AllowedQuestion": {
+                    required: true,
+                    numeric:true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "AllowedDays": {
+                    required: true, minlength: 1,
+                    numeric:true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "Price": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                }
+            },
+            messages: {
+                "radSubscriptionType1": { required: "Please select membership service" },
+                "radSubscriptionType2": { required:  "Please select membership service" },
+                "AllowedQuestion": {required: "Please enter a Allowed Question"},
+                "AllowedDays": { required: "Please enter a Allowed Days", minlength: "Please Enter At Least 1 day" },
+                "Price": {required: "Please enter a Price"}
+            },
+            submitHandler: function (form) {
+            var radio1Value = $("input[name='radSubscriptionType1']:checked").val();
+            var radio2Value = $("input[name='radSubscriptionType2']:checked").val();
+            var subscriptionVal = radio1Value + "_and_" + radio2Value;
+            var TypeId = "";
+            if (subscriptionVal == "Annually_and_Normal") {
+                TypeId = SubscriptionTypes.Annually_and_Normal;
+            }
+            if (subscriptionVal == "Annually_and_Plus") {
+                TypeId = SubscriptionTypes.Annually_and_Plus;
+            }
+            if (subscriptionVal == "Monthly_and_Normal") {
+                TypeId = SubscriptionTypes.Monthly_and_Normal;
+            }
+            if (subscriptionVal == "Monthly_and_Plus") {
+                TypeId = SubscriptionTypes.Monthly_and_Plus;
+            }
+                $("#TypeId").val(TypeId);
+
+                let post_url = form.action;
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    Easylearner.HandleResponse(response);
+                    if (response.status === 1) {
+                        closeModal();
+                    }
+                });
+
+            }
+        });
+
+    });
+
+</script>

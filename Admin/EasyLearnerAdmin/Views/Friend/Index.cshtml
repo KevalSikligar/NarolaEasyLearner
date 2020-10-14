@@ -1,0 +1,172 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "FriendsDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <div style="margin-top:10px;margin-bottom:10px;">
+        <button type="button" onclick="AddEditFriends(0)" class="btn btn-primary">Add Friends</button>
+
+    </div>
+    <div>
+        <table id="dtFriends">
+            <thead>
+                <tr>
+                  
+                    <th>Action</th>
+                    <th>No Of Free Questions</th>
+                    <th>No Of Free Days</th>
+                    <th>Expiration Date</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+
+    @*<script src="~/js/sweetalert.min.js"></script>*@
+
+    <script>
+        var tableId = "";
+        var FriendsArray = new Array();
+        $(document).ready(function () {
+            tableId = "#dtFriends";
+            bindFriendsTable(tableId);
+        });
+
+        function AddEditFriends(id) {
+            $("#modalContent").load(`/Friend/_AddEditFriends/${id}`, function () {
+                $("#divModal").modal('show');
+            });
+        }
+
+        function bindFriendsTable(tableId) {
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).dataTable().fnDestroy();
+            }
+            dynamic = $(tableId).DataTable({
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "/Friend/GetFriendsList",
+                "initComplete": function (settings, json) { },
+                "rowCallback": function (row, data, index) { },
+                "order": [[1, ""]],
+                "language": {
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Friends",
+                    "sInfoEmpty": "Showing 0 to 0 of 0 Friends"
+                },
+                "columns": [
+
+                    {
+                        "data": "isActive",
+                        "autoWidth": true,
+                        "searchable": false,
+                        "orderable": false,
+                        "className": "admin_toggle",
+                        "render": function (data, type, row) {
+                            var element = `<a href="javascript:;" onclick=AddEditFriends(${row.id},false)>Edit</a>`;
+                            return element;
+                        }
+                    },
+
+                    {
+                        "data": "noOfFreeQuestions",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        "data": "noOfFreeDays",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    }
+                    ,
+                    {
+                        "data": "expirationDate",
+                        "autoWidth": true,
+                        "searchable": true,
+                        "orderable": true,
+                         "displayFormat": 'm/d/YYYY',
+
+                        "render": function (data, type, row)
+                        { 
+                            var date = (data.substr(0, 10));
+                            var y = (date.substr(0, 4));
+                            var m =(date.substr(5,2));
+                            var d = (date.substr(8,2));
+                            var fdate = (d + '/' + m + '/' + y);  
+                            return fdate;
+                        }
+                    }
+                ]
+            });
+
+            $(tableId).on("change", ".admin_toggle", function (e) {
+                const current = $(e.currentTarget).find("input");
+                const id = $(current).data("id");
+
+                $.ajax({
+                    url: "/Friend/ManageFriendsIsActive",
+                    data: { id: id },
+                    type: "POST",
+                    success: function (response) {
+                        Easylearner.HandleResponse(response);
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+
+
+        }
+
+        function Confirm(title = "", type, dialogMsg, confirmButtonClass, confirmButtonText, yesCallback) {
+
+            //confirmButtonClass === "" ? "danger" : confirmButtonClass;
+
+            swal({
+                title: title,
+                text: dialogMsg,
+                type: type,
+                showCancelButton: true,
+                confirmButtonClass: "btn-" + confirmButtonClass,
+                confirmButtonText: confirmButtonText,
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    //yesCallback();
+
+                    swal.close();
+                } else {
+                    //if (typeof noCallback !== "undefined") {
+                    //    // safe to use the function
+                    //   // noCallback();
+                    //}
+                }
+            });
+
+        };
+
+
+            //$(document).on("change", ".FriendsCheckbox", function () {
+            //    if ($(this).prop("checked") == true) {
+            //        FriendsArray.push(parseInt($(this).attr('id')));
+            //    }
+            //    if ($(this).prop("checked") == false) {
+            //        arrayRemove(FriendsArray, parseInt($(this).attr('id')));
+            //    }
+
+            //})
+    </script>
+
+}

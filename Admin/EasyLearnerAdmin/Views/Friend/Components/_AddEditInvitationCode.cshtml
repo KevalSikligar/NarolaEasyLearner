@@ -1,0 +1,117 @@
+﻿@model EasyLearner.Service.Dto.InvitationCodeDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+
+<form id="frmInvitationCode" asp-action="AddEditInvitationCode" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Set a prize for invitation code:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="accordian-block border-0">
+            <div class="accordian-para acc-show p-0">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" name="Id" />
+
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="Name">Number of free questions add to membership<span class="text-danger">*</span></label>
+                        <input type="text" asp-for="NoOfFreeQuestions" name="NoOfFreeQuestions" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="Name">Number of free days add to membership<span class="text-danger">*</span></label>
+                        <input type="text" asp-for="NoOfFreeDays" name="NoOfFreeDays" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row mt-0">
+                    <div class="form-group col-md-12">
+                        <label for="ExpirationDate">Expiration date for invitation code from the date issue</label>
+                        <input type="text" asp-for="ExpirationDays" id="ExpirationDays" name="ExpirationDays" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="btnConfirm" class="btn btn-outline-primary con_btn active">Confirm</button>
+        <button type="submit" id="btnEdit" class="btn btn-outline-primary con_btn active">Edit</button>
+    </div>
+</form>
+
+<script src="~/js/bootstrap-datepicker.js"></script>
+<link href="~/css/bootstrap-datepicker.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    var validationresult = $("#frmInvitationCode").validate({
+            rules: {
+                "NoOfFreeQuestions": {
+                    required: true,
+                    numeric:true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "NoOfFreeDays": {
+                    required: true,
+                     numeric:true,
+                     normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "ExpirationDays": {
+                    required: true,
+                     numeric:true,
+                     normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                }
+            },
+            messages: {
+                "NoOfFreeQuestions": {
+                    required: "Please enter a NoOfFreeQuestions"
+                },
+                "NoOfFreeDays": {
+                    required: "Please enter a NoOfFreeDays"
+                },
+                "ExpirationDays": {
+                    required: "Please enter a Expiration days"
+                }
+            },
+            submitHandler: function (form) {
+
+                      let post_url = form.action;
+                                        let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+                    debugger;
+                                            Easylearner.HandleResponse(response);
+                                            if (response.status === 1) {
+                                                closeModal();
+                                            }
+                                        });                  
+            
+            }
+        });
+    $(document).ready(function () {
+        if (@Model.Id> 0) {
+            $("#btnConfirm").attr("disabled", "disabled");
+            $("#btnEdit").removeAttr("disabled");
+        }
+        else {
+            $("#btnEdit").attr("disabled", "disabled");
+            $("#btnConfirm").removeAttr("disabled");
+        }
+        
+
+
+    });
+</script>

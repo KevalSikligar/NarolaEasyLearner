@@ -1,0 +1,53 @@
+﻿@model EasyLearner.Service.Dto.StudentDto
+@{
+    ViewData["Title"] = "ViewStudent";
+}
+
+<h1>View student</h1>
+<form>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" name="Id" id="sid" />
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <label for="StudentName">Name of Student  <span class="text-danger">*</span></label>
+            <input type="text" asp-for="StudentName" name="StudentName" class="form-control" readonly />
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <label for="UserName">User name</label>
+            <input type="text" id="UserName" asp-for="UserName" name="UserName" class="form-control" readonly />
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("StudentAccount","Student",new { id =Model.Id  })">Student Account</a>
+        </div>
+    </div>
+
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="#">Question & Answer</a>
+        </div>
+    </div>
+
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="#">Inbox</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("StudentSubscription","Student",new { id =Model.Id  })">Subscription</a>
+        </div>
+    </div>
+    <div class="form-row mt-0">
+        <div class="form-group col-md-5">
+            <a href="@Url.Action("FilterStudent","Student")">Back to list</a>
+        </div>
+    </div>
+</form>
+
+
+
+

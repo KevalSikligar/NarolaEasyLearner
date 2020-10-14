@@ -1,0 +1,25 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "GradeDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model List<EasyLearner.Service.Dto.DisplayGradeLessonDto>
+<div><h3>List of Grade and Lessons</h3></div>
+<div>
+     @foreach (var grade in Model) { 
+
+    <ul id="myUL">
+        <li>
+            <span class="caret"><b>@grade.GradeName</b></span>
+            @foreach (var lesson in grade.LessonName) {
+            <ul class="nested">
+                <li>@lesson</li>                
+            </ul>
+             }
+        </li>
+    </ul>
+}
+</div>
+<div>
+<button type="button" onclick="window.history.back();" class="btn btn-info">Go back to Add Grades</button>
+</div>

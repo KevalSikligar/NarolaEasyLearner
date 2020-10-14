@@ -1,0 +1,265 @@
+﻿@model EasyLearner.Service.Dto.StaffDto
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="frmStaff" asp-action="AddorRemoveStaff" asp-controller="Staff" method="post">
+    <div class="row add-remove-staff-section align-items-center">
+        <div class="col-md-6 col-sm-12">
+            <input type="hidden" asp-for="Id" name="Id" />
+            <input type="hidden" asp-for="isEdit" name="isEdit" />
+            <div class="row mb-md-4 mb-sm-3 align-items-center">
+                <div class="col-md-4 col-sm-12 form-group mb-0">
+                    <label for="Name">Name   <span class="text-danger">*</span></label>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                    <input type="text" asp-for="Name" autocomplete="off" name="Name" class="form-control" />
+                </div>
+            </div>
+            <div class="row mb-md-4 mb-sm-3 align-items-center">
+                <div class="col-md-4 col-sm-12 form-group mb-0">
+                    <label for="JobTitle">JobTitle   <span class="text-danger">*</span></label>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                    <input type="text" asp-for="JobTitle" autocomplete="off" name="JobTitle" class="form-control" />
+                </div>
+            </div>
+            <div class="row mb-md-4 mb-sm-3 align-items-center">
+                <div class="col-md-4 col-sm-12 form-group mb-0">
+                    <label for="Mobile">Mobile   <span class="text-danger">*</span></label>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                    <input type="text" asp-for="Mobile" name="Mobile" class="form-control" />
+                </div>
+            </div>
+            <div class="row mb-md-4 mb-sm-3">
+                <div class="col-md-4 col-sm-12 form-group mb-0">
+                    <label for="DateOfEmployment">Date of Employeement   <span class="text-danger">*</span></label>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                    <input type="datetime" asp-for="DateOfEmployment" autocomplete="off" name="DateOfEmployment" class="form-control" />
+                </div>
+            </div>
+            <div class="row mb-md-4 mb-sm-3 align-items-center">
+                <div class="col-md-4 col-sm-12 form-group mb-0">
+                    <label for="UserName">UserName   <span class="text-danger">*</span></label>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                    <input type="text" asp-for="UserName" autocomplete="off" name="UserName" class="form-control" />
+                </div>
+            </div>
+
+            @if (!Model.isEdit)
+            {<div class="row mb-md-4 mb-sm-3 align-items-center">
+                    <div class="col-md-4 col-sm-12 form-group mb-0">
+                        <label for="Password">Password   <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-md-8 col-sm-12">
+                        <input type="password" asp-for="Password" autocomplete="off" name="Password" class="form-control" />
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-6 col-sm-12">
+
+            <h3>Determine The Level of Access To System*</h3>
+            <div class="row">
+                <div class="custom-control" style="float:left">
+
+                    <div>
+                        <input type="checkbox" asp-for="Setting" name="Setting" />
+                        <label for="Setting">Setting </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="Student" name="Student" />
+                        <label for="Student">Student </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="Tutor" name="Tutor" />
+                        <label for="Tutor">Tutor </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="QA" name="QA" />
+                        <label for="QA">Q & A  </label>
+                    </div>
+
+                </div>
+                <div class="custom-control" style="float:left">
+
+                    <div>
+                        <input type="checkbox" asp-for="Support" name="Support" />
+                        <label for="Support">Support   </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="OutBox" name="OutBox" />
+                        <label for="OutBox">OutBox   </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="Financial" name="Financial" />
+                        <label for="Financial">Financial  </label>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" asp-for="Exams" name="Exams" />
+                        <label for="Exams">Exams  </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 mt-4 text-center">
+        <input type="submit" id="registerBtn" value="Register" class="btn btn-info" />
+        @if (User.IsInRole(EasyLearner.Service.Enums.UserRoles.Admin))
+        {
+            <input type="button" id="deleteBtn" data-id="@Model.UserId" value="@(Model.IsActive?"InActive":"Activate")" style="display:none" class="btn btn-@(Model.IsActive?"danger":"info")"/>
+        }
+    </div>
+</form>
+@section Scripts{
+
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/jquery.mask.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            $('#DateOfEmployment').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "yyyy/mm/dd",
+                language: "tr"
+            });
+
+            if ($("#isEdit").val() == false) {
+                $("#DateOfEmployment").datepicker("setDate", new Date());
+            } else {
+                $("#DateOfEmployment").datepicker("setDate", new Date($("#DateOfEmployment").val()));
+            }
+
+            if ($("#isEdit").val() === "true") {
+                $("#UserName").prop("disabled", true);
+                $("#registerBtn").val("Edit");
+                $("#deleteBtn").show();
+
+            } else {
+                $("#UserName").prop("disabled", false);
+                $("#deleteBtn").hide();
+            }
+
+
+            $("#deleteBtn").click(function () {
+
+                DeleteStaff($(this).data('id'));
+            });
+
+            function DeleteStaff(StaffId) {
+
+                Easylearner.Confirm("@(Model.IsActive?"InActive":"Activate") Staff", Easylearner.typeModel.Warning, "Are you sure?", Easylearner.typeModel.Danger, "Yes, @(Model.IsActive?"InActive":"Activate") it!", function () {
+                    $.ajax({
+                        url: "/Staff/DeleteStaff",
+                        data: { id: StaffId },
+                        type: "POST",
+                        success: function (response) {
+                            setTimeout(Easylearner.HandleResponse(response), 5000);
+                            window.location.href = "/Home/index";
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        }
+                    });
+                }
+                );
+
+            }
+
+        });
+
+        var validationresult = $("#frmStaff").validate({
+            rules: {
+                "Name": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "Mobile": {
+                    remote: {
+                        url: "/Staff/CheckMobileForNewStaff",
+                        type: "GET",
+                    }
+                },
+                "JobTitle": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+
+                "DateOfEmployment": {
+                    required: true,
+                    normalizer: function (value) {
+                        return $.trim(value);
+                    }
+                },
+                "UserName": {
+                    required: true,
+                    minlength: 8,
+                    alphanumeric: true,
+                    remote: {
+                        url: "/Staff/CheckUserNameForNewStaff",
+                        type: "GET",
+                    }
+                },
+                "Password": { required: true }
+            },
+            messages: {
+                "Name": {
+                    required: "Please enter a  Name"
+                },
+                "Mobile": {
+                    remote: "MobileNumber is already taken",
+                },
+                "JobTitle": {
+                    required: "Please enter a  JobTitle"
+                },
+                "DateOfEmployment": {
+                    required: "Please enter a  Date of Employeement"
+                },
+                "UserName": {
+                    remote: "UserName is already taken",
+                    required: "Please Enter Username.",
+                    minlength: "Username  length should be 8 characters."
+
+                },
+                "Password": {
+                    required: "Please enter a  Password"
+                }
+            },
+            submitHandler: function (form) {
+                let post_url = form.action;
+                $("#UserName").prop("disabled", false);
+                let form_data = $(form).serialize();
+                $.post(post_url, form_data, function (response) {
+
+                    setTimeout(Easylearner.HandleResponse(response), 5000);
+                    $("#UserName").prop("disabled", true);
+                    window.location.href = "/Home/index";
+                });
+
+            }
+        });
+
+
+
+        $('input[name="Mobile"]').mask('00000000000');
+
+
+
+    </script>
+}
