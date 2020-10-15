@@ -9,5 +9,6 @@ namespace EasyLearnerAdmin.Dto.Dtos
    public class GradeDto:BaseModel
     {
         public string Name { get; set; }
+        public string GradeName { get; set; }
     }
 }
